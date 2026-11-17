@@ -3,9 +3,9 @@
  * Seluruh layout dan komponen menggunakan bawaan Bootstrap 5.3
  */
 
- :root {
+:root {
     --app-header-height: 60px;
- }
+}
 
 /* Integrasi Tinggi Editor CodeMirror */
 .CodeMirror {
@@ -25,4 +25,23 @@
 .form-control::placeholder,
 .form-select::placeholder {
     color: color-mix(in srgb, currentColor 50%, transparent) !important;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    min-width: 360px;
+    min-height: 640px;
+}
+
+.container,
+.container-fluid,
+.container-lg,
+.container-md,
+.container-sm,
+.container-xl,
+.container-xxl {
+    --bs-gutter-x: 2rem;
 }

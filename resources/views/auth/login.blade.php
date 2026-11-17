@@ -4,15 +4,6 @@
 
 @push('styles')
    <style>
-      html,
-      body {
-         width: 100%;
-         height: 100%;
-         overflow: hidden;
-         min-width: 360px;
-         min-height: 640px;
-      }
-
       body {
          background-image: url({{ asset('assets/img/bg-indraco-factory-bambe.jpg') }});
          background-repeat: no-repeat;
