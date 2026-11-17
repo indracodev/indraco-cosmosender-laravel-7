@@ -45,3 +45,11 @@ body {
 .container-xxl {
     --bs-gutter-x: 2rem;
 }
+
+table {
+
+    & thead,
+    & .btn {
+        white-space: nowrap;
+    }
+}

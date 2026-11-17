@@ -11,7 +11,7 @@
             <p class="text-body-secondary small mb-0">Pilih lini brand untuk mengelola materi konten HTML (EDM) atau memulai
                pengiriman email.</p>
          </div>
-         <a href="{{ route('settings.brands') }}" class="btn btn-sm btn-outline-secondary">
+         <a href="{{ route('settings.brands') }}" class="btn btn-sm btn-secondary">
             <i class="bi bi-gear me-1"></i> Kelola Brand
          </a>
       </div>
@@ -31,7 +31,7 @@
             @endphp
             <div class="col-12 col-xl-6">
                <article class="card h-100 shadow-sm">
-                  <div class="card-header bg-transparent p-3 d-flex align-items-start justify-content-between gap-2">
+                  <div class="card-header bg-transparent p-3 d-sm-flex align-items-start justify-content-between gap-2">
                      <div>
                         <div class="d-flex align-items-center gap-2">
                            <h2 class="h6 fw-bold mb-0">{{ $brand->name }}</h2>
@@ -48,11 +48,12 @@
                         </div>
                         <div class="text-body-secondary small mt-1">
                            Pengirim: <span class="fw-medium text-body">{{ $brand->email_alias ?: '-' }}</span>
-                           &middot; Domain: <code>{{ $brand->domain }}</code>
+                           <br>
+                           Domain: <code>{{ $brand->domain }}</code>
                         </div>
                      </div>
 
-                     <div class="text-end small">
+                     <div class="small text-sm-end">
                         <div class="fw-semibold text-body">{{ number_format($brand->subscriber_count) }} Subscriber</div>
                         <div class="text-body-secondary" style="font-size: 0.75rem;">Kuota:
                            {{ $brand->blast_limit ?: 'Tanpa Batas' }} / batch</div>
@@ -98,16 +99,16 @@
                      </div>
                   </div>
 
-                  <footer class="card-footer bg-body-tertiary px-3 py-2 d-flex align-items-center justify-content-between">
-                     <span class="text-body-secondary" style="font-size: 0.75rem;">
+                  <footer class="card-footer d-sm-flex column-gap-3 justify-content-between align-items-center">
+                     <div class="text-body-secondary mb-2 mb-sm-0" style="font-size: 0.75rem;">
                         Blast Terakhir:
                         {{ $brand->last_blast_time && $brand->last_blast_time !== '0000-00-00 00:00:00' ? $brand->last_blast_time : '-' }}
-                     </span>
-                     <div class="d-flex align-items-center gap-2">
-                        <a href="{{ route('contents.index', $brand->id) }}" class="btn btn-sm btn-outline-secondary">
+                     </div>
+                     <div class="d-flex gap-2 text-nowrap">
+                        <a href="{{ route('contents.index', $brand->id) }}" class="btn btn-sm w-50 btn-outline-secondary">
                            <i class="bi bi-code-square me-1"></i> Content ({{ $brand->content_count }})
                         </a>
-                        <a href="{{ route('blast.index', $brand->id) }}" class="btn btn-sm btn-primary">
+                        <a href="{{ route('blast.index', $brand->id) }}" class="btn btn-sm w-50 btn-primary">
                            <i class="bi bi-send-fill me-1"></i> Begin Blast
                         </a>
                      </div>

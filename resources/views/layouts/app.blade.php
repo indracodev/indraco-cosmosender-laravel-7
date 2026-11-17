@@ -1,14 +1,5 @@
 @extends('layouts.base')
 
-@push('styles')
-   <style>
-      * {
-         outline: solid 1px green;
-         outline: solid 1px transparent;
-      }
-   </style>
-@endpush
-
 @section('body')
    <!-- Wrapper -->
    <div id="csWrapper" class="d-flex">
@@ -28,7 +19,7 @@
 
                   <button type="button" class="btn-close rounded-0 border-0 shadow-none d-lg-none"
                      data-bs-toggle="offcanvas" data-bs-target="#csSidebar" aria-controls="csSidebar"
-                     aria-label="Buka Navigasi"></button>
+                     aria-label="Tutup Navigasi"></button>
 
 
                   <a href="{{ route('dashboard') }}" class="navbar-brand m-0 d-none d-lg-flex" id="csSidebarLabel">
@@ -112,7 +103,7 @@
       </aside>
 
       <!-- Main Content Area -->
-      <div class="vh-100 flex-grow-1 vstack bg-body-tertiary">
+      <div class="vh-100 flex-grow-1 vstack bg-body-tertiary" style="min-width: 0;">
          <header class="navbar navbar-expand-lg bg-body border-bottom" style="min-height: var(--app-header-height);">
             <div class="container-fluid column-gap-3">
 
@@ -161,9 +152,11 @@
             </div>
          </header>
 
-         <div class="flex-grow-1 overflow-x-hidden overflow-y-auto vstack">
-            <main class="flex-grow-1 container-fluid py-4 p-xxl-5">
-               @yield('content')
+         <div class="flex-grow-1 overflow-y-auto vstack">
+            <main class="flex-grow-1">
+               <div class="container-fluid py-4 p-xxl-5">
+                  @yield('content')
+               </div>
             </main>
 
             <footer>
