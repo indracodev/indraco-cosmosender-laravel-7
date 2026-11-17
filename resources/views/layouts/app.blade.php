@@ -11,16 +11,15 @@
         style="--bs-offcanvas-width: 256px; width: 256px;"
     >
         <div class="bg-body border-end d-flex flex-column w-100 h-100 sticky-lg-top" style="max-height: 100vh;">
-            <div class="px-3 border-bottom d-flex align-items-center justify-content-between flex-shrink-0" style="height: 60px;">
-                <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none text-body fw-bold" id="csSidebarLabel">
+            <div class="px-3 border-bottom d-flex align-items-center justify-content-center" style="min-height: var(--app-header-height);">
+                <a href="{{ route('dashboard') }}" class="link-body-emphasis text-decoration-none text-center" id="csSidebarLabel">
                     <img
-                        src="{{ asset('assets/img/logo.png') }}"
-                        data-img-src-light="{{ asset('assets/img/logo.png') }}"
-                        data-img-src-dark="{{ asset('assets/img/logo-light.png') }}"
+                        src="{{ asset('assets/img/logo-indraco.png') }}"
+                        data-img-src-light="{{ asset('assets/img/logo-indraco.png') }}"
+                        data-img-src-dark="{{ asset('assets/img/logo-indraco-invert.png') }}"
                         alt="Logo Indraco"
                         style="height: 26px; width: auto;"
                     >
-                    <span>{{ config('app.name') }}</span>
                 </a>
                 <button
                     type="button"
@@ -75,6 +74,21 @@
                     <i class="bi bi-server"></i>
                     <span>Server</span>
                 </a>
+                <div class="text-uppercase text-body-secondary fw-bold px-2 pt-3 pb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                    Contoh Data
+                </div>
+                <a href="#" class="nav-link d-flex align-items-center gap-2 py-2 px-3 {{ request()->routeIs('settings.servers*') ? 'active fw-semibold' : 'link-body-emphasis' }}">
+                    <i class="bi bi-server"></i>
+                    <span>Contoh Menu</span>
+                </a>
+                <a href="#" class="nav-link d-flex align-items-center gap-2 py-2 px-3 {{ request()->routeIs('settings.servers*') ? 'active fw-semibold' : 'link-body-emphasis' }}">
+                    <i class="bi bi-server"></i>
+                    <span>Contoh Menu</span>
+                </a>
+                <a href="#" class="nav-link d-flex align-items-center gap-2 py-2 px-3 {{ request()->routeIs('settings.servers*') ? 'active fw-semibold' : 'link-body-emphasis' }}">
+                    <i class="bi bi-server"></i>
+                    <span>Contoh Menu</span>
+                </a>
             </nav>
 
             <div class="p-3 border-top mt-auto flex-shrink-0">
@@ -96,7 +110,7 @@
 
     <!-- Main Content Area -->
     <div class="flex-grow-1 d-flex flex-column min-w-0 bg-body-tertiary">
-        <header class="navbar bg-body border-bottom px-3 px-lg-4 sticky-top" style="height: 60px;">
+        <header class="navbar bg-body border-bottom px-3 px-lg-4 sticky-top" style="min-height: var(--app-header-height);">
             <div class="d-flex align-items-center gap-2">
                 <button
                     type="button"
@@ -108,22 +122,26 @@
                 >
                     <i class="bi bi-list"></i>
                 </button>
-                <h1 class="h6 mb-0 fw-semibold">@yield('page_title', 'Workspace')</h1>
+                {{-- <h1 class="h6 mb-0 fw-semibold">@yield('page_title', 'Workspace')</h1> --}}
+                <div class="hstack gap-2">
+                    <div class="fw-bold text-uppercase">{{ config('app.name') }}</div>
+                    <div class="vr"></div>
+                    <div>Manajemen Konten EDM &amp; Email Blasting</div>
+                </div>
             </div>
 
             <div class="d-flex align-items-center gap-2">
                 @if(!empty($isStagingMode))
-                    <span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1" title="Akun Lokal/Staging: Upload tersimpan di lokal & Blast pelanggan otomatis berjalan dalam Mode Simulasi.">
+                    <span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 d-none" title="Akun Lokal/Staging: Upload tersimpan di lokal & Blast pelanggan otomatis berjalan dalam Mode Simulasi.">
                         <i class="bi bi-shield-lock-fill me-1"></i>
                         <span>LOCAL / STAGING MODE ({{ $currentUser['user_name'] }})</span>
                     </span>
                 @else
-                    <span class="badge rounded-pill text-bg-success-subtle text-success-emphasis border border-success-subtle px-2 py-1" title="Akun Produksi Live: Terhubung penuh ke mbcontentservices & pengiriman Blast Pelanggan Aktif.">
+                    <span class="badge rounded-pill text-bg-success-subtle text-success-emphasis border border-success-subtle px-2 py-1 d-none" title="Akun Produksi Live: Terhubung penuh ke mbcontentservices & pengiriman Blast Pelanggan Aktif.">
                         <i class="bi bi-broadcast me-1"></i>
                         <span>LIVE PRODUCTION MODE ({{ $currentUser['user_name'] }})</span>
                     </span>
                 @endif
-
                 <x-theme-toggle id="btnToggleTheme" />
             </div>
         </header>

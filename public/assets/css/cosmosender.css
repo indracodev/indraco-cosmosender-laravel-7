@@ -3,6 +3,10 @@
  * Seluruh layout dan komponen menggunakan bawaan Bootstrap 5.3
  */
 
+ :root {
+    --app-header-height: 60px;
+ }
+
 /* Integrasi Tinggi Editor CodeMirror */
 .CodeMirror {
     flex: 1;

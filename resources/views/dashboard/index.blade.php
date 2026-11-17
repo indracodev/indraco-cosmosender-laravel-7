@@ -6,7 +6,10 @@
 @section('content')
 <section aria-label="Daftar Brand Aktif">
     <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-        <p class="text-body-secondary small mb-0">Pilih lini brand untuk mengelola materi konten HTML (EDM) atau memulai pengiriman email.</p>
+        <div>
+            <h1 class="fs-2 mb-0 fw-semibold">@yield('page_title', 'Workspace')</h1>
+            <p class="text-body-secondary small mb-0">Pilih lini brand untuk mengelola materi konten HTML (EDM) atau memulai pengiriman email.</p>
+        </div>
         <a href="{{ route('settings.brands') }}" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-gear me-1"></i> Kelola Brand
         </a>
@@ -106,4 +109,6 @@
         @endforelse
     </div>
 </section>
+
+<div class="vh-100"></div>
 @endsection
