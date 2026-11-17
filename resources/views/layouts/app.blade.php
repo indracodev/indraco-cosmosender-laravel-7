@@ -112,7 +112,7 @@
                   <span class=" navbar-toggler-icon"></span>
                </button>
 
-               <a href="{{ route('dashboard') }}" class="navbar-brand me-auto d-flex d-lg-none" id="csSidebarLabel">
+               <a href="{{ route('dashboard') }}" class="navbar-brand me-auto d-flex d-lg-none">
                   <img src="{{ asset('assets/img/logo-indraco.png') }}"
                      data-img-src-light="{{ asset('assets/img/logo-indraco.png') }}"
                      data-img-src-dark="{{ asset('assets/img/logo-indraco-invert.png') }}" alt="Logo Indraco"
@@ -129,8 +129,8 @@
 
                <x-theme-toggle id="btnToggleTheme" />
                <div class="dropdown">
-                  <button class="btn rounded-0 border-0 shadow-none dropdown-toggle" data-bs-toggle="dropdown"
-                     data-bs-target="#dropdownUser">
+                  <button type="button" class="btn rounded-0 border-0 shadow-none dropdown-toggle" data-bs-toggle="dropdown"
+                     data-bs-target="#dropdownUser" aria-expanded="false">
                      <i class="bi bi-person-circle"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-end px-3" id="dropdownUser">

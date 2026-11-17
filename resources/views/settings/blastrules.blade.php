@@ -51,7 +51,10 @@
                                        {{ optional($rule->emailHost)->host }}
                                     </span>
                                     <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2"
-                                       onclick="openEditRuleModal({{ $rule->id }}, @json($rule->name), {{ (int) $rule->host_id }})"
+                                       data-action="edit-rule"
+                                       data-rule-id="{{ $rule->id }}"
+                                       data-rule-name="{{ $rule->name }}"
+                                       data-host-id="{{ (int) $rule->host_id }}"
                                        title="Edit Nama / Host Rule">
                                        <i class="bi bi-pencil"></i>
                                     </button>
@@ -65,7 +68,10 @@
                                        ({{ $rule->activeDetails->count() }})
                                     </span>
                                     <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none"
-                                       onclick="openAddRelayModal({{ $rule->id }}, @json($rule->name), {{ (int) $rule->host_id }})">
+                                       data-action="add-rule-relay"
+                                       data-rule-id="{{ $rule->id }}"
+                                       data-rule-name="{{ $rule->name }}"
+                                       data-host-id="{{ (int) $rule->host_id }}">
                                        <i class="bi bi-plus-circle"></i> Tambah Relay
                                     </button>
                                  </div>
@@ -77,7 +83,9 @@
                                              <span>{{ $detail->relay->email }}</span>
                                              <button type="button" class="btn-close" style="font-size: 0.55rem;"
                                                 aria-label="Hapus Relay"
-                                                onclick="removeRuleRelay({{ $detail->id }}, @json($detail->relay->email))"></button>
+                                                data-action="remove-rule-relay"
+                                                data-detail-id="{{ $detail->id }}"
+                                                data-email="{{ $detail->relay->email }}"></button>
                                           </span>
                                        @endif
                                     @empty
@@ -93,7 +101,9 @@
                                        <span class="small fw-semibold text-body-secondary">Email Penerima Send Test
                                           ({{ $rule->activeRecipients->count() }})</span>
                                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none"
-                                          onclick="openAddRecipientModal({{ $rule->id }}, @json($rule->name))">
+                                          data-action="add-rule-recipient"
+                                          data-rule-id="{{ $rule->id }}"
+                                          data-rule-name="{{ $rule->name }}">
                                           <i class="bi bi-person-plus"></i> Tambah Email Tester
                                        </button>
                                     </div>
@@ -104,7 +114,9 @@
                                              <span>{{ $recip->email }} ({{ $recip->name }})</span>
                                              <button type="button" class="btn-close" style="font-size: 0.55rem;"
                                                 aria-label="Hapus Penerima"
-                                                onclick="removeRuleRecipient({{ $recip->id }}, @json($recip->email))"></button>
+                                                data-action="remove-rule-recipient"
+                                                data-recipient-id="{{ $recip->id }}"
+                                                data-email="{{ $recip->email }}"></button>
                                           </span>
                                        @empty
                                           <span class="text-body-secondary small fst-italic">Belum ada email tester</span>
@@ -374,5 +386,52 @@
             alert(err.message);
          }
       }
+      document.addEventListener('click', (e) => {
+         const editRuleBtn = e.target.closest('[data-action="edit-rule"]');
+         if (editRuleBtn) {
+            openEditRuleModal(
+               editRuleBtn.getAttribute('data-rule-id'),
+               editRuleBtn.getAttribute('data-rule-name') || '',
+               Number(editRuleBtn.getAttribute('data-host-id') || 0)
+            );
+            return;
+         }
+
+         const addRelayBtn = e.target.closest('[data-action="add-rule-relay"]');
+         if (addRelayBtn) {
+            openAddRelayModal(
+               addRelayBtn.getAttribute('data-rule-id'),
+               addRelayBtn.getAttribute('data-rule-name') || '',
+               Number(addRelayBtn.getAttribute('data-host-id') || 0)
+            );
+            return;
+         }
+
+         const removeRelayBtn = e.target.closest('[data-action="remove-rule-relay"]');
+         if (removeRelayBtn) {
+            removeRuleRelay(
+               removeRelayBtn.getAttribute('data-detail-id'),
+               removeRelayBtn.getAttribute('data-email') || ''
+            );
+            return;
+         }
+
+         const addRecipBtn = e.target.closest('[data-action="add-rule-recipient"]');
+         if (addRecipBtn) {
+            openAddRecipientModal(
+               addRecipBtn.getAttribute('data-rule-id'),
+               addRecipBtn.getAttribute('data-rule-name') || ''
+            );
+            return;
+         }
+
+         const removeRecipBtn = e.target.closest('[data-action="remove-rule-recipient"]');
+         if (removeRecipBtn) {
+            removeRuleRecipient(
+               removeRecipBtn.getAttribute('data-recipient-id'),
+               removeRecipBtn.getAttribute('data-email') || ''
+            );
+         }
+      });
    </script>
 @endpush

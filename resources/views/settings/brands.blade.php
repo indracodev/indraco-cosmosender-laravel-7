@@ -66,7 +66,18 @@
                      </td>
                      <td class="text-end">
                         <button type="button" class="btn btn-sm btn-outline-secondary"
-                           onclick='openEditBrandModal(@json($brand))'>
+                           data-action="edit-brand"
+                           data-id="{{ $brand->id }}"
+                           data-name="{{ $brand->name }}"
+                           data-email-alias="{{ $brand->email_alias }}"
+                           data-domain="{{ $brand->domain }}"
+                           data-namespace="{{ $brand->aseet_namespace }}"
+                           data-actual-path="{{ $brand->actual_path }}"
+                           data-content-domain="{{ $brand->content_domain }}"
+                           data-service-id="{{ $brand->service_id }}"
+                           data-blast-limit="{{ $brand->blast_limit ?? 0 }}"
+                           data-blast-interval="{{ $brand->blast_hour_interval ?? 0 }}"
+                           data-flag="{{ $brand->flag }}">
                            <i class="bi bi-pencil me-1"></i> Edit
                         </button>
                      </td>
@@ -253,6 +264,25 @@
          document.getElementById('editFlag').value = brand.flag;
          showModal('modalEditBrand');
       }
+
+      document.addEventListener('click', (e) => {
+         const editBtn = e.target.closest('[data-action="edit-brand"]');
+         if (editBtn) {
+            openEditBrandModal({
+               id: editBtn.getAttribute('data-id'),
+               name: editBtn.getAttribute('data-name') || '',
+               email_alias: editBtn.getAttribute('data-email-alias') || '',
+               domain: editBtn.getAttribute('data-domain') || '',
+               aseet_namespace: editBtn.getAttribute('data-namespace') || '',
+               actual_path: editBtn.getAttribute('data-actual-path') || '',
+               content_domain: editBtn.getAttribute('data-content-domain') || '',
+               service_id: editBtn.getAttribute('data-service-id') || '',
+               blast_limit: editBtn.getAttribute('data-blast-limit') ?? 0,
+               blast_hour_interval: editBtn.getAttribute('data-blast-interval') ?? 0,
+               flag: editBtn.getAttribute('data-flag') || 'Y'
+            });
+         }
+      });
 
       document.getElementById('formEditBrand').addEventListener('submit', async (e) => {
          e.preventDefault();

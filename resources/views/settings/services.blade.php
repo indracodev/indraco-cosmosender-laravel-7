@@ -42,7 +42,11 @@
                      </td>
                      <td class="text-end">
                         <button type="button" class="btn btn-sm btn-outline-secondary"
-                           onclick="openEditService({{ $s->id }}, @json($s->service), {{ (int) $s->server_id }}, @json($s->color))">
+                           data-action="edit-service"
+                           data-id="{{ $s->id }}"
+                           data-service="{{ $s->service }}"
+                           data-server-id="{{ (int) $s->server_id }}"
+                           data-color="{{ $s->color ?: '#7affe9' }}">
                            <i class="bi bi-pencil me-1"></i> Edit
                         </button>
                      </td>
@@ -148,6 +152,18 @@
          document.getElementById('editServiceColor').value = color || '#7affe9';
          showModal('modalEditService');
       }
+
+      document.addEventListener('click', (e) => {
+         const editBtn = e.target.closest('[data-action="edit-service"]');
+         if (editBtn) {
+            openEditService(
+               editBtn.getAttribute('data-id'),
+               editBtn.getAttribute('data-service') || '',
+               Number(editBtn.getAttribute('data-server-id') || 0),
+               editBtn.getAttribute('data-color') || '#7affe9'
+            );
+         }
+      });
 
       document.getElementById('formEditService').addEventListener('submit', async (e) => {
          e.preventDefault();

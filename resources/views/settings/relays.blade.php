@@ -61,7 +61,14 @@
                      </td>
                      <td class="text-end">
                         <button type="button" class="btn btn-sm btn-outline-secondary"
-                           onclick='openEditRelayModal(@json($r))'>
+                           data-action="edit-relay"
+                           data-id="{{ $r->id }}"
+                           data-host-id="{{ $r->host_id }}"
+                           data-email="{{ $r->email }}"
+                           data-port="{{ $r->port ?: 465 }}"
+                           data-email-from="{{ $r->email_from }}"
+                           data-email-alias="{{ $r->email_alias }}"
+                           data-flag="{{ $r->flag }}">
                            <i class="bi bi-pencil me-1"></i> Edit
                         </button>
                      </td>
@@ -212,6 +219,21 @@
          document.getElementById('editRelayFlag').value = relay.flag;
          showModal('modalEditRelay');
       }
+
+      document.addEventListener('click', (e) => {
+         const editBtn = e.target.closest('[data-action="edit-relay"]');
+         if (editBtn) {
+            openEditRelayModal({
+               id: editBtn.getAttribute('data-id'),
+               host_id: editBtn.getAttribute('data-host-id'),
+               email: editBtn.getAttribute('data-email') || '',
+               port: editBtn.getAttribute('data-port') || 465,
+               email_from: editBtn.getAttribute('data-email-from') || '',
+               email_alias: editBtn.getAttribute('data-email-alias') || '',
+               flag: editBtn.getAttribute('data-flag') || 'Y'
+            });
+         }
+      });
 
       document.getElementById('formEditRelay').addEventListener('submit', async (e) => {
          e.preventDefault();

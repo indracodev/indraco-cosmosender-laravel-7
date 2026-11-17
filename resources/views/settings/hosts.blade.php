@@ -45,7 +45,10 @@
                      </td>
                      <td class="text-end">
                         <button type="button" class="btn btn-sm btn-outline-secondary"
-                           onclick="openEditHost({{ $h->id }}, @json($h->host), {{ (int) $h->server_id }})">
+                           data-action="edit-host"
+                           data-id="{{ $h->id }}"
+                           data-host="{{ $h->host }}"
+                           data-server-id="{{ (int) $h->server_id }}">
                            <i class="bi bi-pencil me-1"></i> Edit
                         </button>
                      </td>
@@ -140,6 +143,17 @@
          document.getElementById('editHostServer').value = serverId;
          showModal('modalEditHost');
       }
+
+      document.addEventListener('click', (e) => {
+         const editBtn = e.target.closest('[data-action="edit-host"]');
+         if (editBtn) {
+            openEditHost(
+               editBtn.getAttribute('data-id'),
+               editBtn.getAttribute('data-host') || '',
+               Number(editBtn.getAttribute('data-server-id') || 0)
+            );
+         }
+      });
 
       document.getElementById('formEditHost').addEventListener('submit', async (e) => {
          e.preventDefault();

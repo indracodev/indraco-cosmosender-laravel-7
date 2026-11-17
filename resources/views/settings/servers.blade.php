@@ -41,7 +41,11 @@
                      </td>
                      <td class="text-end">
                         <button type="button" class="btn btn-sm btn-outline-secondary"
-                           onclick="openEditServer({{ $srv->id }}, @json($srv->name), @json($srv->domain), @json($srv->color))">
+                           data-action="edit-server"
+                           data-id="{{ $srv->id }}"
+                           data-name="{{ $srv->name }}"
+                           data-domain="{{ $srv->domain }}"
+                           data-color="{{ $srv->color ?: '#eea177' }}">
                            <i class="bi bi-pencil me-1"></i> Edit
                         </button>
                      </td>
@@ -140,6 +144,18 @@
          document.getElementById('editServerColor').value = color || '#eea177';
          showModal('modalEditServer');
       }
+
+      document.addEventListener('click', (e) => {
+         const editBtn = e.target.closest('[data-action="edit-server"]');
+         if (editBtn) {
+            openEditServer(
+               editBtn.getAttribute('data-id'),
+               editBtn.getAttribute('data-name') || '',
+               editBtn.getAttribute('data-domain') || '',
+               editBtn.getAttribute('data-color') || '#eea177'
+            );
+         }
+      });
 
       document.getElementById('formEditServer').addEventListener('submit', async (e) => {
          e.preventDefault();

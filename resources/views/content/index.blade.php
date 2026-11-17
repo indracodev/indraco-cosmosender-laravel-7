@@ -53,14 +53,19 @@
                         </td>
                         <td class="text-end">
                            <div class="btn-group btn-group-sm" role="group" aria-label="Aksi Materi">
-                              <button type="button" class="btn btn-outline-primary"
-                                 onclick="openHtmlEditor({{ $item->id }})" title="Edit HTML & Live Preview">
-                                 <i class="bi bi-code-slash me-1"></i> Editor HTML
-                              </button>
                               <button type="button" class="btn btn-outline-secondary"
-                                 onclick="openEditMeta({{ $item->id }}, @json($item->materi_name), @json($item->subject))"
+                                 data-action="edit-meta"
+                                 data-id="{{ $item->id }}"
+                                 data-materi="{{ $item->materi_name }}"
+                                 data-subject="{{ $item->subject }}"
                                  title="Ubah Nama Materi & Subject">
                                  <i class="bi bi-pencil"></i> Edit Info
+                              </button>
+                              <button type="button" class="btn btn-outline-primary"
+                                 data-action="open-editor"
+                                 data-id="{{ $item->id }}"
+                                 title="Edit HTML & Live Preview">
+                                 <i class="bi bi-code-slash me-1"></i> Editor HTML
                               </button>
                               <a href="{{ route('contents.preview', $item->id) }}" target="_blank" rel="noopener"
                                  class="btn btn-outline-secondary" title="Buka Pratinjau di Tab Baru">
@@ -222,7 +227,7 @@
                            <span class="small fw-semibold text-body-secondary">Kode Sumber HTML (Gunakan
                               <code>{email}</code> untuk email dinamis)</span>
                            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none"
-                              onclick="refreshLivePreview()">
+                              id="btnRefreshPreview">
                               <i class="bi bi-arrow-clockwise"></i> Segarkan Preview
                            </button>
                         </div>
@@ -249,9 +254,9 @@
 
    <!-- Modal Redirect URL Helper -->
    <div class="modal fade" id="modalRedirectList" tabindex="-1" aria-labelledby="modalRedirectListLabel"
-      aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-         <div class="modal-content">
+      aria-hidden="true" style="z-index: 1065;">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+         <div class="modal-content shadow-lg">
             <div class="modal-header">
                <h2 class="modal-title h6 fw-bold" id="modalRedirectListLabel">Daftar URL Tracking &amp; Redirect</h2>
                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
@@ -405,10 +410,10 @@
                     <img src="${item.local_url}" alt="${item.name}" class="w-100 rounded bg-secondary-subtle mb-2" style="height: 64px; object-fit: contain;">
                     <div class="small text-truncate fw-medium mb-1" title="${item.name}">${item.name}</div>
                     <div class="d-flex gap-1">
-                        <button type="button" class="btn btn-outline-secondary btn-sm flex-fill py-0" onclick="copyText('${item.local_url}')">
+                        <button type="button" class="btn btn-outline-secondary btn-sm flex-fill py-0" data-copy-url="${item.local_url}">
                             <i class="bi bi-clipboard"></i> URL Lokal/Aktif
                         </button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm flex-fill py-0" onclick="copyText('${item.live_url}')">
+                        <button type="button" class="btn btn-outline-secondary btn-sm flex-fill py-0" data-copy-url="${item.live_url}">
                             <i class="bi bi-globe"></i> URL Live
                         </button>
                     </div>
@@ -427,7 +432,7 @@
                     <td class="fw-medium">${r.name}</td>
                     <td><code class="small">${r.url}</code></td>
                     <td class="text-end">
-                        <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="copyText('${r.url}')">
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-0" data-copy-url="${r.url}">
                             <i class="bi bi-clipboard"></i> Salin
                         </button>
                     </td>
@@ -437,11 +442,59 @@
          document.getElementById('redirectListBody').innerHTML = html;
       }
 
-      function copyText(text) {
-         navigator.clipboard.writeText(text).then(() => {
+      async function copyText(text, btnEl = null) {
+         try {
+            if (navigator.clipboard && window.isSecureContext) {
+               await navigator.clipboard.writeText(text);
+            } else {
+               const tempInput = document.createElement('textarea');
+               tempInput.value = text;
+               tempInput.style.position = 'fixed';
+               tempInput.style.opacity = '0';
+               document.body.appendChild(tempInput);
+               tempInput.focus();
+               tempInput.select();
+               document.execCommand('copy');
+               document.body.removeChild(tempInput);
+            }
+
+            if (btnEl) {
+               const originalHtml = btnEl.innerHTML;
+               btnEl.innerHTML = '<i class="bi bi-check-lg text-success"></i> Tersalin';
+               setTimeout(() => {
+                  btnEl.innerHTML = originalHtml;
+               }, 1500);
+            }
             showEditorAlert('URL berhasil disalin ke clipboard: <code>' + text + '</code>', 'info');
-         });
+         } catch (err) {
+            alert('Gagal menyalin URL.');
+         }
       }
+
+      document.getElementById('btnRefreshPreview').addEventListener('click', refreshLivePreview);
+
+      document.addEventListener('click', (e) => {
+         const editMetaBtn = e.target.closest('[data-action="edit-meta"]');
+         if (editMetaBtn) {
+            openEditMeta(
+               editMetaBtn.getAttribute('data-id'),
+               editMetaBtn.getAttribute('data-materi') || '',
+               editMetaBtn.getAttribute('data-subject') || ''
+            );
+            return;
+         }
+
+         const openEditorBtn = e.target.closest('[data-action="open-editor"]');
+         if (openEditorBtn) {
+            openHtmlEditor(openEditorBtn.getAttribute('data-id'));
+            return;
+         }
+
+         const copyBtn = e.target.closest('[data-copy-url]');
+         if (copyBtn) {
+            copyText(copyBtn.getAttribute('data-copy-url'), copyBtn);
+         }
+      });
 
       document.getElementById('formUploadAsset').addEventListener('submit', async (e) => {
          e.preventDefault();

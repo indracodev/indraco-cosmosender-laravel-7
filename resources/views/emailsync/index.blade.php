@@ -57,11 +57,21 @@
                      <td class="text-end">
                         <div class="btn-group btn-group-sm" role="group">
                            <button type="button" class="btn btn-outline-primary"
-                              onclick="openSubscriberModal({{ $brand->id }}, @json($brand->name), @json($brand->slug))">
+                              data-action="open-subscribers"
+                              data-brand-id="{{ $brand->id }}"
+                              data-brand-name="{{ $brand->name }}"
+                              data-brand-slug="{{ $brand->slug }}">
                               <i class="bi bi-card-list me-1"></i> Daftar Email
                            </button>
                            <button type="button" class="btn btn-outline-secondary"
-                              onclick="openSyncConfigModal({{ $brand->id }}, @json($brand->name), @json($cfg))">
+                              data-action="open-sync-config"
+                              data-brand-id="{{ $brand->id }}"
+                              data-brand-name="{{ $brand->name }}"
+                              data-table-name="{{ optional($cfg)->table_name }}"
+                              data-email-col="{{ optional($cfg)->email_column }}"
+                              data-name-col="{{ optional($cfg)->name_column }}"
+                              data-where-clause="{{ optional($cfg)->where_clause }}"
+                              data-where-value="{{ optional($cfg)->where_value }}">
                               <i class="bi bi-gear me-1"></i> Config
                            </button>
                         </div>
@@ -97,11 +107,11 @@
 
                   <div class="d-flex gap-2">
                      <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="btnSyncMembership"
-                        onclick="triggerRemoteSync('membership')">
+                        data-sync-mode="membership">
                         <i class="bi bi-arrow-repeat me-1"></i> Sync Membership
                      </button>
                      <button type="button" class="btn btn-sm btn-primary" id="btnSyncRegular"
-                        onclick="triggerRemoteSync('regular')">
+                        data-sync-mode="regular">
                         <i class="bi bi-arrow-repeat me-1"></i> Sync dari Database Brand
                      </button>
                   </div>
@@ -338,6 +348,39 @@
          document.getElementById('cfgWhereValue').value = cfg ? (cfg.where_value || '') : '';
          showModal('modalSyncConfig');
       }
+
+      document.addEventListener('click', (e) => {
+         const subBtn = e.target.closest('[data-action="open-subscribers"]');
+         if (subBtn) {
+            openSubscriberModal(
+               subBtn.getAttribute('data-brand-id'),
+               subBtn.getAttribute('data-brand-name') || '',
+               subBtn.getAttribute('data-brand-slug') || ''
+            );
+            return;
+         }
+
+         const cfgBtn = e.target.closest('[data-action="open-sync-config"]');
+         if (cfgBtn) {
+            openSyncConfigModal(
+               cfgBtn.getAttribute('data-brand-id'),
+               cfgBtn.getAttribute('data-brand-name') || '',
+               {
+                  table_name: cfgBtn.getAttribute('data-table-name') || '',
+                  email_column: cfgBtn.getAttribute('data-email-col') || '',
+                  name_column: cfgBtn.getAttribute('data-name-col') || '',
+                  where_clause: cfgBtn.getAttribute('data-where-clause') || '',
+                  where_value: cfgBtn.getAttribute('data-where-value') || ''
+               }
+            );
+            return;
+         }
+
+         const syncBtn = e.target.closest('[data-sync-mode]');
+         if (syncBtn) {
+            triggerRemoteSync(syncBtn.getAttribute('data-sync-mode'));
+         }
+      });
 
       document.getElementById('formSyncConfig').addEventListener('submit', async (e) => {
          e.preventDefault();
