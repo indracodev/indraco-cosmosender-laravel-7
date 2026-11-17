@@ -14,7 +14,7 @@
       </div>
 
       <div class="table-responsive">
-         <table class="table table-hover align-middle mb-0">
+         <table class="table table-hover mb-0">
             <thead class="table-light">
                <tr>
                   <th style="width: 50px;">#</th>
@@ -108,7 +108,7 @@
                </div>
 
                <div class="table-responsive">
-                  <table class="table table-sm align-middle mb-0">
+                  <table class="table table-sm mb-0">
                      <thead class="table-light">
                         <tr>
                            <th>ID</th>

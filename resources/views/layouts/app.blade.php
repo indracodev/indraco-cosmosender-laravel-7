@@ -103,7 +103,7 @@
       </aside>
 
       <!-- Main Content Area -->
-      <div class="vh-100 flex-grow-1 vstack bg-body-tertiary" style="min-width: 0;">
+      <div class="svh-100 flex-grow-1 vstack bg-body-tertiary" style="min-width: 0;">
          <header class="navbar navbar-expand-lg bg-body border-bottom" style="min-height: var(--app-header-height);">
             <div class="container-fluid column-gap-3">
 
@@ -162,7 +162,7 @@
             <footer>
                <div class="container-fluid">
                   <hr>
-                  <p class="small text-muted">
+                  <p class="small text-muted text-center text-lg-start">
                      Dikembangkan dengan ❤️ oleh INDRACODEV. &copy; {{ date('Y') }}
                      <span class="text-uppercase fw-bold">{{ config('app.name') }}</span>. Seluruh hak dilindungi.
                   </p>

@@ -28,7 +28,7 @@
          </div>
 
          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover mb-0">
                <thead class="table-light">
                   <tr>
                      <th style="width: 50px;">#</th>
@@ -161,25 +161,29 @@
       aria-labelledby="modalHtmlEditorLabel" aria-hidden="true">
       <div class="modal-dialog modal-fullscreen">
          <div class="modal-content">
-            <div class="modal-header py-2 px-3 bg-body-tertiary">
+            <div class="modal-header py-2 px-3 bg-body-tertiary d-flex flex-column align-items-start gap-2">
                <div>
                   <h2 class="modal-title h6 fw-bold mb-0" id="modalHtmlEditorLabel">Editor HTML EDM</h2>
                   <div class="text-body-secondary" style="font-size: 0.75rem;" id="editorMetaSubtitle"></div>
                </div>
-               <div class="d-flex align-items-center gap-2">
+               <div class="d-flex align-items-center gap-1">
                   <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
                      data-bs-target="#modalRedirectList">
-                     <i class="bi bi-link-45deg me-1"></i> Daftar URL Tracking / Redirect
+                     <i class="bi bi-link-45deg"></i>
+                     <span class="d-none d-sm-inline ms-1">Daftar URL Tracking / Redirect</span>
                   </button>
                   <button type="button" class="btn btn-sm btn-outline-primary" id="btnPushLive"
                      title="Unggah HTML & Gambar lokal ke mbcontentservices Server Live">
-                     <i class="bi bi-cloud-upload me-1"></i> Push Materi ke Server Live
+                     <i class="bi bi-cloud-upload"></i>
+                     <span class="d-none d-sm-inline ms-1">Push Materi ke Server Live</span>
                   </button>
                   <button type="button" class="btn btn-sm btn-primary" id="btnSaveHtml">
-                     <i class="bi bi-floppy me-1"></i> Simpan HTML
+                     <i class="bi bi-floppy"></i>
+                     <span class="d-none d-sm-inline ms-1">Simpan HTML</span>
                   </button>
                   <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="btnCloseEditor">
-                     <i class="bi bi-x-lg"></i> Tutup
+                     <i class="bi bi-x-lg"></i>
+                     <span class="d-none d-sm-inline ms-1">Tutup</span>
                   </button>
                </div>
             </div>
@@ -258,7 +262,7 @@
                   proses pengiriman berlangsung.
                </p>
                <div class="table-responsive">
-                  <table class="table table-sm align-middle mb-0">
+                  <table class="table table-sm mb-0">
                      <thead class="table-light">
                         <tr>
                            <th>Nama Link</th>

@@ -150,7 +150,7 @@
             </div>
 
             <div class="table-responsive" style="max-height: 430px;">
-                <table class="table table-sm table-hover align-middle mb-0">
+                <table class="table table-sm table-hover mb-0">
                     <thead class="table-light sticky-top">
                         <tr>
                             <th style="width: 50px;">#</th>
@@ -179,7 +179,7 @@
         <h2 class="h6 fw-bold mb-0">Riwayat Eksekusi Terakhir ({{ $brand->name }})</h2>
     </div>
     <div class="table-responsive">
-        <table class="table table-sm align-middle mb-0">
+        <table class="table table-sm mb-0">
             <thead class="table-light">
                 <tr>
                     <th>Waktu Eksekusi</th>

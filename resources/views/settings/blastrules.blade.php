@@ -36,15 +36,15 @@
                      <div class="col-12 col-xl-6">
                         <div class="border rounded p-3 h-100 d-flex flex-column justify-content-between">
                            <div>
-                              <div class="d-flex align-items-center justify-content-between mb-2">
-                                 <div class="d-flex align-items-center gap-2">
+                              <div class="d-flex gap-2 align-items-center justify-content-between mb-2">
+                                 <div class="d-flex flex-wrap align-items-center gap-2">
                                     <span
                                        class="badge {{ $rule->type === 'blast' ? 'text-bg-danger' : 'text-bg-secondary' }}">
                                        {{ strtoupper($rule->type) }}
                                     </span>
                                     <h3 class="h6 fw-bold mb-0">{{ $rule->name }}</h3>
                                  </div>
-                                 <div class="d-flex align-items-center gap-1">
+                                 <div class="d-flex flex-wrap align-items-center justify-content-end gap-1">
                                     <span class="badge text-dark border"
                                        style="background-color: {{ optional(optional($rule->emailHost)->server)->color ?: '#f1f5f9' }};">
                                        {{ optional(optional($rule->emailHost)->server)->name }} /
