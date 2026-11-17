@@ -102,8 +102,23 @@
 
     window.resetIdleTimer = resetIdleTimer;
 
+    const syncSidebarMiniButtons = () => {
+        const isMini = document.documentElement.getAttribute('data-sidebar-mini') === 'true';
+        document.querySelectorAll('[data-toggle-sidebar-mini]').forEach((btn) => {
+            const icon = btn.querySelector('i');
+            if (icon) {
+                icon.classList.remove('bi-layout-sidebar-inset', 'bi-layout-sidebar');
+                icon.classList.add(isMini ? 'bi-layout-sidebar' : 'bi-layout-sidebar-inset');
+            }
+            const label = isMini ? 'Perlebar Sidebar' : 'Perkecil Sidebar (Ikon Saja)';
+            btn.setAttribute('title', label);
+            btn.setAttribute('aria-label', label);
+        });
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         showActiveTheme(getPreferredTheme());
+        syncSidebarMiniButtons();
 
         if (document.querySelector('form[action*="logout"]')) {
             resetIdleTimer();
@@ -131,6 +146,23 @@
             setStoredTheme(next);
             setTheme(next);
             showActiveTheme(next);
+            return;
+        }
+
+        const sidebarMiniBtn = event.target.closest('[data-toggle-sidebar-mini]');
+        if (sidebarMiniBtn) {
+            const isCurrentlyMini = document.documentElement.getAttribute('data-sidebar-mini') === 'true';
+            const nextMini = !isCurrentlyMini;
+            if (nextMini) {
+                document.documentElement.setAttribute('data-sidebar-mini', 'true');
+            } else {
+                document.documentElement.removeAttribute('data-sidebar-mini');
+            }
+            localStorage.setItem('cs_sidebar_mini', nextMini ? 'true' : 'false');
+            syncSidebarMiniButtons();
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 220);
             return;
         }
 

@@ -15,6 +15,9 @@
             savedTheme :
             (prefersDark ? 'dark' : 'light');
          document.documentElement.setAttribute('data-bs-theme', theme);
+         if (localStorage.getItem('cs_sidebar_mini') === 'true') {
+            document.documentElement.setAttribute('data-sidebar-mini', 'true');
+         }
       })();
    </script>
    <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-5.3.8-dist/css/bootstrap.min.css') }}">

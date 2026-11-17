@@ -71,3 +71,47 @@ table {
 .text-muted {
     color: color-mix(in srgb, currentColor 50%, transparent) !important;
 }
+
+/* Mini Sidebar (Icon-Only pada Desktop >= 992px) */
+.sidebar-logo-mini {
+    display: none;
+}
+
+@media (min-width: 992px) {
+    #csSidebar {
+        transition: width 0.2s ease;
+    }
+
+    html[data-sidebar-mini="true"] #csSidebar {
+        width: 64px !important;
+    }
+
+    html[data-sidebar-mini="true"] #csSidebar .sidebar-logo-full,
+    html[data-sidebar-mini="true"] #csSidebar .sidebar-group-label,
+    html[data-sidebar-mini="true"] #csSidebar .nav-link span {
+        display: none !important;
+    }
+
+    html[data-sidebar-mini="true"] #csSidebar .sidebar-logo-mini {
+        display: inline-block !important;
+    }
+
+    html[data-sidebar-mini="true"] #csSidebar .sidebar-group-divider {
+        display: block !important;
+    }
+
+    html[data-sidebar-mini="true"] #csSidebar .sidebar-nav-container {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    html[data-sidebar-mini="true"] #csSidebar .nav-link {
+        justify-content: center;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    html[data-sidebar-mini="true"] #csSidebar .nav-link i {
+        font-size: 1.1rem;
+    }
+}
