@@ -3,11 +3,6 @@
 @section('title', 'Content Management — ' . $brand->name)
 @section('page_title', 'Content Management: ' . $brand->name)
 
-@push('styles')
-   <link rel="stylesheet" href="{{ asset('assets/vendor/codemirror/lib/codemirror.css') }}">
-   <link rel="stylesheet" href="{{ asset('assets/vendor/codemirror/theme/dracula.css') }}">
-@endpush
-
 @section('content')
    <h1 class="fs-2 mb-3 fw-semibold">@yield('page_title', 'Workspace')</h1>
 
@@ -43,7 +38,7 @@
                <tbody>
                   @forelse ($contents as $index => $item)
                      <tr>
-                        <td class="text-body-secondary">{{ $index + 1 }}</td>
+                        <td class="text-body-secondary">{{ $contents->firstItem() + $index }}</td>
                         <td class="fw-medium">{{ $item->materi_name ?: '-' }}</td>
                         <td>{{ $item->subject ?: '-' }}</td>
                         <td><code>{{ $item->formatted_date }}</code></td>
@@ -61,12 +56,10 @@
                                  title="Ubah Nama Materi & Subject">
                                  <i class="bi bi-pencil"></i> Edit Info
                               </button>
-                              <button type="button" class="btn btn-outline-primary"
-                                 data-action="open-editor"
-                                 data-id="{{ $item->id }}"
+                              <a href="{{ route('contents.editor', $item->id) }}" class="btn btn-outline-primary"
                                  title="Edit HTML & Live Preview">
                                  <i class="bi bi-code-slash me-1"></i> Editor HTML
-                              </button>
+                              </a>
                               <a href="{{ route('contents.preview', $item->id) }}" target="_blank" rel="noopener"
                                  class="btn btn-outline-secondary" title="Buka Pratinjau di Tab Baru">
                                  <i class="bi bi-box-arrow-up-right"></i> Preview
@@ -84,6 +77,17 @@
                </tbody>
             </table>
          </div>
+
+         @if ($contents->hasPages())
+            <div class="card-footer bg-transparent py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+               <div class="small text-body-secondary">
+                  Menampilkan {{ $contents->firstItem() }}–{{ $contents->lastItem() }} dari {{ $contents->total() }} materi
+               </div>
+               <div class="m-0">
+                  {{ $contents->links() }}
+               </div>
+            </div>
+         @endif
       </div>
    </section>
 
@@ -160,177 +164,10 @@
          </form>
       </div>
    </div>
-
-   <!-- Modal Fullscreen HTML Editor + Live Preview + Asset Manager -->
-   <div class="modal fade" id="modalHtmlEditor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-      aria-labelledby="modalHtmlEditorLabel" aria-hidden="true">
-      <div class="modal-dialog modal-fullscreen">
-         <div class="modal-content">
-            <div class="modal-header py-2 px-3 bg-body-tertiary d-flex flex-column align-items-start gap-2">
-               <div>
-                  <h2 class="modal-title h6 fw-bold mb-0" id="modalHtmlEditorLabel">Editor HTML EDM</h2>
-                  <div class="text-body-secondary" style="font-size: 0.75rem;" id="editorMetaSubtitle"></div>
-               </div>
-               <div class="d-flex align-items-center gap-1">
-                  <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
-                     data-bs-target="#modalRedirectList">
-                     <i class="bi bi-link-45deg"></i>
-                     <span class="d-none d-sm-inline ms-1">Daftar URL Tracking / Redirect</span>
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-primary" id="btnPushLive"
-                     title="Unggah HTML & Gambar lokal ke mbcontentservices Server Live">
-                     <i class="bi bi-cloud-upload"></i>
-                     <span class="d-none d-sm-inline ms-1">Push Materi ke Server Live</span>
-                  </button>
-                  <button type="button" class="btn btn-sm btn-primary" id="btnSaveHtml">
-                     <i class="bi bi-floppy"></i>
-                     <span class="d-none d-sm-inline ms-1">Simpan HTML</span>
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="btnCloseEditor">
-                     <i class="bi bi-x-lg"></i>
-                     <span class="d-none d-sm-inline ms-1">Tutup</span>
-                  </button>
-               </div>
-            </div>
-
-            <div class="modal-body p-3">
-               <div id="editorAlertBox"></div>
-               <input type="hidden" id="activeEditorContentId">
-
-               <div class="row g-3 h-100">
-                  <!-- Kolom Kiri: Upload & Daftar Asset Gambar -->
-                  <div class="col-12 col-lg-3">
-                     <div class="card p-3 h-100 d-flex flex-column">
-                        <h3 class="h6 fw-bold mb-2">Asset Gambar Banner</h3>
-                        <p class="text-body-secondary small mb-2">Unggah gambar lalu klik tombol salin URL untuk
-                           ditempelkan ke tag <code>&lt;img src="..."&gt;</code>.</p>
-
-                        <form id="formUploadAsset" class="mb-3">
-                           <div class="input-group input-group-sm">
-                              <input type="file" id="assetFileInput" name="files[]" class="form-control"
-                                 accept="image/*" multiple required>
-                              <button type="submit" class="btn btn-primary" id="btnUploadAsset">
-                                 <i class="bi bi-upload"></i> Upload
-                              </button>
-                           </div>
-                        </form>
-
-                        <div class="overflow-y-auto flex-grow-1" style="max-height: calc(100vh - 280px);"
-                           id="assetListContainer"></div>
-                     </div>
-                  </div>
-
-                  <!-- Kolom Tengah: CodeMirror Editor -->
-                  <div class="col-12 col-lg-5">
-                     <div class="d-flex flex-column" style="height: calc(100vh - 175px); min-height: 460px;">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                           <span class="small fw-semibold text-body-secondary">Kode Sumber HTML (Gunakan
-                              <code>{email}</code> untuk email dinamis)</span>
-                           <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none"
-                              id="btnRefreshPreview">
-                              <i class="bi bi-arrow-clockwise"></i> Segarkan Preview
-                           </button>
-                        </div>
-                        <textarea id="codeMirrorTextarea"></textarea>
-                     </div>
-                  </div>
-
-                  <!-- Kolom Kanan: Live Preview Iframe -->
-                  <div class="col-12 col-lg-4">
-                     <div class="d-flex flex-column" style="height: calc(100vh - 175px); min-height: 460px;">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                           <span class="small fw-semibold text-body-secondary">Live HTML Preview</span>
-                           <span class="badge bg-body-tertiary text-body border">Otomatis diperbarui</span>
-                        </div>
-                        <iframe id="livePreviewFrame" class="w-100 flex-grow-1 border rounded bg-white"
-                           title="Live Preview Email HTML"></iframe>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
-
-   <!-- Modal Redirect URL Helper -->
-   <div class="modal fade" id="modalRedirectList" tabindex="-1" aria-labelledby="modalRedirectListLabel"
-      aria-hidden="true" style="z-index: 1065;">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
-         <div class="modal-content shadow-lg">
-            <div class="modal-header">
-               <h2 class="modal-title h6 fw-bold" id="modalRedirectListLabel">Daftar URL Tracking &amp; Redirect</h2>
-               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-            </div>
-            <div class="modal-body">
-               <p class="text-body-secondary small mb-2">
-                  Tag <code>{email}</code> tidak perlu diubah karena akan otomatis diganti dengan email penerima saat
-                  proses pengiriman berlangsung.
-               </p>
-               <div class="table-responsive">
-                  <table class="table table-sm mb-0">
-                     <thead class="table-light">
-                        <tr>
-                           <th>Nama Link</th>
-                           <th>Template URL</th>
-                           <th class="text-end">Salin</th>
-                        </tr>
-                     </thead>
-                     <tbody id="redirectListBody"></tbody>
-                  </table>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
 @endsection
 
 @push('scripts')
-   <script src="{{ asset('assets/vendor/codemirror/lib/codemirror.js') }}"></script>
-   <script src="{{ asset('assets/vendor/codemirror/mode/xml/xml.js') }}"></script>
-   <script src="{{ asset('assets/vendor/codemirror/addon/edit/matchbrackets.js') }}"></script>
    <script>
-      let cmEditor = null;
-      let previewTimer = null;
-
-      document.addEventListener('DOMContentLoaded', () => {
-         const textArea = document.getElementById('codeMirrorTextarea');
-         cmEditor = CodeMirror.fromTextArea(textArea, {
-            lineNumbers: true,
-            mode: 'xml',
-            htmlMode: true,
-            matchBrackets: true,
-            theme: 'dracula',
-            lineWrapping: true
-         });
-
-         cmEditor.on('change', () => {
-            clearTimeout(previewTimer);
-            previewTimer = setTimeout(refreshLivePreview, 350);
-         });
-      });
-
-      function refreshLivePreview() {
-         if (!cmEditor) return;
-         const rawHtml = cmEditor.getValue();
-         const frame = document.getElementById('livePreviewFrame');
-         if (!frame) return;
-         const doc = frame.contentDocument || frame.contentWindow.document;
-         doc.open();
-         doc.write(rawHtml ||
-            '<div style="font-family:sans-serif;padding:2rem;color:#94a3b8;text-align:center;">Ketik kode HTML di sebelah kiri untuk melihat pratinjau langsung.</div>'
-         );
-         doc.close();
-      }
-
-      function showEditorAlert(msg, type = 'success') {
-         document.getElementById('editorAlertBox').innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show py-2 px-3 small mb-2" role="alert">
-                ${msg}
-                <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-      }
-
       document.getElementById('formAddContent').addEventListener('submit', async (e) => {
          e.preventDefault();
          const btnSubmit = document.getElementById('btnSubmitAdd');
@@ -368,111 +205,6 @@
          }
       });
 
-      async function openHtmlEditor(contentId) {
-         document.getElementById('activeEditorContentId').value = contentId;
-         document.getElementById('editorAlertBox').innerHTML = '';
-         document.getElementById('assetListContainer').innerHTML =
-            '<div class="text-body-secondary small py-3 text-center">Memuat data...</div>';
-         showModal('modalHtmlEditor');
-
-         try {
-            const res = await csRequest(`{{ url('contents') }}/${contentId}/editor`, {
-               method: 'GET'
-            });
-            const d = res.data;
-            document.getElementById('editorMetaSubtitle').textContent =
-               `${d.materi_name} | Subject: ${d.subject} | Jadwal: ${d.formatted_date} ${d.formatted_time}`;
-            cmEditor.setValue(d.body_content || '');
-            setTimeout(() => {
-               cmEditor.refresh();
-               refreshLivePreview();
-            }, 200);
-
-            renderAssets(d.assets || []);
-            renderRedirects(d.redirects || []);
-         } catch (err) {
-            showEditorAlert(err.message, 'danger');
-         }
-      }
-
-      function renderAssets(assets) {
-         const container = document.getElementById('assetListContainer');
-         if (!assets.length) {
-            container.innerHTML =
-               '<div class="text-body-secondary small py-3 text-center">Belum ada gambar diunggah pada materi ini.</div>';
-            return;
-         }
-
-         let html = '<div class="d-flex flex-column gap-2">';
-         assets.forEach((item) => {
-            html += `
-                <div class="border rounded p-2 bg-body-tertiary">
-                    <img src="${item.local_url}" alt="${item.name}" class="w-100 rounded bg-secondary-subtle mb-2" style="height: 64px; object-fit: contain;">
-                    <div class="small text-truncate fw-medium mb-1" title="${item.name}">${item.name}</div>
-                    <div class="d-flex gap-1">
-                        <button type="button" class="btn btn-outline-secondary btn-sm flex-fill py-0" data-copy-url="${item.local_url}">
-                            <i class="bi bi-clipboard"></i> URL Lokal/Aktif
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm flex-fill py-0" data-copy-url="${item.live_url}">
-                            <i class="bi bi-globe"></i> URL Live
-                        </button>
-                    </div>
-                </div>
-            `;
-         });
-         html += '</div>';
-         container.innerHTML = html;
-      }
-
-      function renderRedirects(redirects) {
-         let html = '';
-         redirects.forEach((r) => {
-            html += `
-                <tr>
-                    <td class="fw-medium">${r.name}</td>
-                    <td><code class="small">${r.url}</code></td>
-                    <td class="text-end">
-                        <button type="button" class="btn btn-sm btn-outline-secondary py-0" data-copy-url="${r.url}">
-                            <i class="bi bi-clipboard"></i> Salin
-                        </button>
-                    </td>
-                </tr>
-            `;
-         });
-         document.getElementById('redirectListBody').innerHTML = html;
-      }
-
-      async function copyText(text, btnEl = null) {
-         try {
-            if (navigator.clipboard && window.isSecureContext) {
-               await navigator.clipboard.writeText(text);
-            } else {
-               const tempInput = document.createElement('textarea');
-               tempInput.value = text;
-               tempInput.style.position = 'fixed';
-               tempInput.style.opacity = '0';
-               document.body.appendChild(tempInput);
-               tempInput.focus();
-               tempInput.select();
-               document.execCommand('copy');
-               document.body.removeChild(tempInput);
-            }
-
-            if (btnEl) {
-               const originalHtml = btnEl.innerHTML;
-               btnEl.innerHTML = '<i class="bi bi-check-lg text-success"></i> Tersalin';
-               setTimeout(() => {
-                  btnEl.innerHTML = originalHtml;
-               }, 1500);
-            }
-            showEditorAlert('URL berhasil disalin ke clipboard: <code>' + text + '</code>', 'info');
-         } catch (err) {
-            alert('Gagal menyalin URL.');
-         }
-      }
-
-      document.getElementById('btnRefreshPreview').addEventListener('click', refreshLivePreview);
-
       document.addEventListener('click', (e) => {
          const editMetaBtn = e.target.closest('[data-action="edit-meta"]');
          if (editMetaBtn) {
@@ -481,101 +213,7 @@
                editMetaBtn.getAttribute('data-materi') || '',
                editMetaBtn.getAttribute('data-subject') || ''
             );
-            return;
          }
-
-         const openEditorBtn = e.target.closest('[data-action="open-editor"]');
-         if (openEditorBtn) {
-            openHtmlEditor(openEditorBtn.getAttribute('data-id'));
-            return;
-         }
-
-         const copyBtn = e.target.closest('[data-copy-url]');
-         if (copyBtn) {
-            copyText(copyBtn.getAttribute('data-copy-url'), copyBtn);
-         }
-      });
-
-      document.getElementById('formUploadAsset').addEventListener('submit', async (e) => {
-         e.preventDefault();
-         const contentId = document.getElementById('activeEditorContentId').value;
-         const fileInput = document.getElementById('assetFileInput');
-         if (!fileInput.files.length) return;
-
-         const formData = new FormData();
-         for (let i = 0; i < fileInput.files.length; i++) {
-            formData.append('files[]', fileInput.files[i]);
-         }
-
-         const btnUpload = document.getElementById('btnUploadAsset');
-         btnUpload.disabled = true;
-
-         try {
-            const res = await csRequest(`{{ url('contents') }}/${contentId}/assets`, {
-               method: 'POST',
-               data: formData
-            });
-            btnUpload.disabled = false;
-            fileInput.value = '';
-            renderAssets(res.assets || []);
-            showEditorAlert(res.message, 'success');
-         } catch (err) {
-            btnUpload.disabled = false;
-            showEditorAlert(err.message, 'danger');
-         }
-      });
-
-      document.getElementById('btnSaveHtml').addEventListener('click', async (e) => {
-         const contentId = document.getElementById('activeEditorContentId').value;
-         const bodyContent = cmEditor.getValue();
-         const btn = e.currentTarget;
-         btn.disabled = true;
-
-         try {
-            const res = await csRequest(`{{ url('contents') }}/${contentId}/body`, {
-               method: 'POST',
-               data: {
-                  body_content: bodyContent
-               }
-            });
-            btn.disabled = false;
-            showEditorAlert(res.message, 'success');
-         } catch (err) {
-            btn.disabled = false;
-            showEditorAlert(err.message, 'danger');
-         }
-      });
-
-      document.getElementById('btnPushLive').addEventListener('click', async (e) => {
-         if (!confirm(
-               'Sinkronkan kode HTML dan seluruh gambar lokal materi ini ke Server Live (mbcontentservices) sekarang?'
-            )) {
-            return;
-         }
-         const contentId = document.getElementById('activeEditorContentId').value;
-         const btn = e.currentTarget;
-         btn.disabled = true;
-
-         try {
-            await csRequest(`{{ url('contents') }}/${contentId}/body`, {
-               method: 'POST',
-               data: {
-                  body_content: cmEditor.getValue()
-               }
-            });
-            const res = await csRequest(`{{ url('contents') }}/${contentId}/push-live`, {
-               method: 'POST'
-            });
-            btn.disabled = false;
-            showEditorAlert(res.message, res.data && res.data.remote_synced ? 'success' : 'warning');
-         } catch (err) {
-            btn.disabled = false;
-            showEditorAlert(err.message, 'danger');
-         }
-      });
-
-      document.getElementById('btnCloseEditor').addEventListener('click', () => {
-         hideModal('modalHtmlEditor');
       });
    </script>
 @endpush

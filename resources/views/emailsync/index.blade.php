@@ -31,7 +31,7 @@
                      $cfg = $brand->emailSyncTable;
                   @endphp
                   <tr>
-                     <td class="text-body-secondary">{{ $index + 1 }}</td>
+                     <td class="text-body-secondary">{{ $brands->firstItem() + $index }}</td>
                      <td>
                         <div class="fw-semibold">{{ $brand->name }}</div>
                         <div class="text-body-secondary small"><code>{{ $brand->slug }}</code></div>
@@ -81,6 +81,17 @@
             </tbody>
          </table>
       </div>
+
+      @if ($brands->hasPages())
+         <div class="card-footer bg-transparent py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="small text-body-secondary">
+               Menampilkan {{ $brands->firstItem() }}–{{ $brands->lastItem() }} dari {{ $brands->total() }} brand
+            </div>
+            <div class="m-0">
+               {{ $brands->links() }}
+            </div>
+         </div>
+      @endif
    </section>
 
    <!-- Modal Daftar Email & Tombol Sync -->

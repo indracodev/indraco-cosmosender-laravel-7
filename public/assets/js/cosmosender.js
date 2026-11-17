@@ -6,6 +6,7 @@
     'use strict';
 
     const THEME_STORAGE_KEY = 'cs_theme';
+    const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 Menit
 
     const getStoredTheme = () => localStorage.getItem(THEME_STORAGE_KEY);
     const setStoredTheme = (theme) => localStorage.setItem(THEME_STORAGE_KEY, theme);
@@ -76,8 +77,40 @@
         }
     });
 
+    // Penanganan Auto-Logout Idle 15 Menit (Aman terhadap Aktivitas Blasting)
+    let idleTimer = null;
+    window.isBlastActive = false;
+
+    const triggerIdleLogout = () => {
+        if (window.isBlastActive) {
+            resetIdleTimer();
+            return;
+        }
+        const logoutForm = document.querySelector('form[action*="logout"]');
+        if (logoutForm) {
+            logoutForm.submit();
+        }
+    };
+
+    const resetIdleTimer = () => {
+        if (!idleTimer && !document.querySelector('form[action*="logout"]')) {
+            return;
+        }
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(triggerIdleLogout, IDLE_TIMEOUT_MS);
+    };
+
+    window.resetIdleTimer = resetIdleTimer;
+
     document.addEventListener('DOMContentLoaded', () => {
         showActiveTheme(getPreferredTheme());
+
+        if (document.querySelector('form[action*="logout"]')) {
+            resetIdleTimer();
+            ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach((evtName) => {
+                document.addEventListener(evtName, resetIdleTimer, { passive: true });
+            });
+        }
     });
 
     // Event Delegation Global: Theme Switcher & Password Toggle
@@ -188,6 +221,9 @@
 
     // Global Helper: Native Fetch AJAX ke Backend Laravel
     window.csRequest = async (url, options = {}) => {
+        // Setiap aktivitas AJAX (termasuk proses Blasting) me-reset idle timer
+        resetIdleTimer();
+
         const csrfMeta = document.querySelector('meta[name="csrf-token"]');
         const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
 
@@ -234,12 +270,18 @@
             body
         });
 
+        resetIdleTimer();
+
         let payload = null;
         const contentType = response.headers.get('content-type') || '';
         if (contentType.includes('application/json')) {
             payload = await response.json();
         } else {
             payload = { message: await response.text() };
+        }
+
+        if (response.status === 401) {
+            window.location.reload();
         }
 
         if (!response.ok) {

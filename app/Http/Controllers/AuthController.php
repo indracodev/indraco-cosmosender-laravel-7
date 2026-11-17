@@ -61,6 +61,7 @@ class AuthController extends Controller
             'token_id'  => $tokenRecord->id,
             'mode'      => $user->isStagingAccount() ? 'staging' : 'live',
         ]);
+        $request->session()->put('cosmosender_last_activity', time());
 
         return redirect()->route('dashboard');
     }

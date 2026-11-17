@@ -12,7 +12,7 @@ class MasterSettingController extends Controller
 {
     public function servers()
     {
-        $servers = Server::orderBy('id', 'asc')->get();
+        $servers = Server::orderBy('id', 'asc')->paginate(50);
         return view('settings.servers', compact('servers'));
     }
 
@@ -55,7 +55,7 @@ class MasterSettingController extends Controller
 
     public function services()
     {
-        $services = Service::with('server')->orderBy('id', 'asc')->get();
+        $services = Service::with('server')->orderBy('id', 'asc')->paginate(50);
         $servers = Server::where('flag', 'Y')->orderBy('id', 'asc')->get();
 
         return view('settings.services', compact('services', 'servers'));
@@ -100,7 +100,7 @@ class MasterSettingController extends Controller
 
     public function hosts()
     {
-        $hosts = EmailHost::with('server')->orderBy('id', 'asc')->get();
+        $hosts = EmailHost::with('server')->orderBy('id', 'asc')->paginate(50);
         $servers = Server::where('flag', 'Y')->orderBy('id', 'asc')->get();
 
         return view('settings.hosts', compact('hosts', 'servers'));
@@ -142,7 +142,7 @@ class MasterSettingController extends Controller
 
     public function relays()
     {
-        $relays = EmailRelay::with('emailHost.server')->orderBy('id', 'asc')->get();
+        $relays = EmailRelay::with('emailHost.server')->orderBy('id', 'asc')->paginate(50);
         $hosts = EmailHost::with('server')->where('flag', 'Y')->orderBy('id', 'asc')->get();
 
         return view('settings.relays', compact('relays', 'hosts'));

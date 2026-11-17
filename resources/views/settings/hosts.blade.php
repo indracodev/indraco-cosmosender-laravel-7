@@ -31,7 +31,7 @@
             <tbody>
                @foreach ($hosts as $index => $h)
                   <tr>
-                     <td class="text-body-secondary">{{ $index + 1 }}</td>
+                     <td class="text-body-secondary">{{ $hosts->firstItem() + $index }}</td>
                      <td><code>{{ $h->host }}</code></td>
                      <td>
                         @if ($h->server)
@@ -57,6 +57,17 @@
             </tbody>
          </table>
       </div>
+
+      @if ($hosts->hasPages())
+         <div class="card-footer bg-transparent py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="small text-body-secondary">
+               Menampilkan {{ $hosts->firstItem() }}–{{ $hosts->lastItem() }} dari {{ $hosts->total() }} host
+            </div>
+            <div class="m-0">
+               {{ $hosts->links() }}
+            </div>
+         </div>
+      @endif
    </section>
 
    <!-- Modal Tambah Host -->

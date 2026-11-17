@@ -34,7 +34,7 @@
                <div class="row g-3">
                   @forelse ($brand->activeBlastRules as $rule)
                      <div class="col-12 col-xl-6">
-                        <div class="border rounded p-3 h-100 d-flex flex-column justify-content-between">
+                        <div class="border p-3 h-100 d-flex flex-column justify-content-between">
                            <div>
                               <div class="d-flex gap-2 align-items-center justify-content-between mb-2">
                                  <div class="d-flex flex-wrap align-items-center gap-2">

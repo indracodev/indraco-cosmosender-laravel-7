@@ -16,7 +16,7 @@ class EmailSyncController extends Controller
         $brands = Brand::with(['service.server', 'emailSyncTable'])
             ->withCount('activeCustomerEmails as subscriber_count')
             ->orderBy('id', 'asc')
-            ->get();
+            ->paginate(50);
 
         return view('emailsync.index', compact('brands'));
     }
@@ -39,7 +39,7 @@ class EmailSyncController extends Controller
             });
         }
 
-        $paginated = $query->orderBy('id', 'asc')->paginate(15);
+        $paginated = $query->orderBy('id', 'asc')->paginate(50);
 
         return response()->json([
             'code' => 200,

@@ -11,7 +11,7 @@ class BrandController extends Controller
 {
     public function index()
     {
-        $brands = Brand::with('service.server')->orderBy('id', 'asc')->get();
+        $brands = Brand::with('service.server')->orderBy('id', 'asc')->paginate(50);
         $services = Service::with('server')->where('flag', 'Y')->orderBy('id', 'asc')->get();
 
         return view('settings.brands', compact('brands', 'services'));

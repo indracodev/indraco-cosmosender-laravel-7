@@ -18,7 +18,7 @@ class ContentController extends Controller
             ->withCount('assets')
             ->orderBy('date_namespace', 'desc')
             ->orderBy('time_namespace', 'desc')
-            ->get();
+            ->paginate(50);
 
         return view('content.index', compact('brand', 'contents'));
     }
@@ -96,22 +96,7 @@ class ContentController extends Controller
         $assets = $syncService->formatAssetUrls($brand, $content);
         $redirects = $this->buildRedirectList($brand, (string) $content->date_namespace);
 
-        return response()->json([
-            'code' => 200,
-            'data' => [
-                'id'             => $content->id,
-                'materi_name'    => $content->materi_name,
-                'subject'        => $content->subject,
-                'date_namespace' => $content->date_namespace,
-                'time_namespace' => $content->time_namespace,
-                'formatted_date' => $content->formatted_date,
-                'formatted_time' => $content->formatted_time,
-                'body_content'   => (string) $content->body_content,
-                'assets'         => $assets,
-                'redirects'      => $redirects,
-                'preview_url'    => route('contents.preview', $content->id),
-            ],
-        ]);
+        return view('content.editor', compact('brand', 'content', 'assets', 'redirects'));
     }
 
     public function saveBody(Request $request, Content $content, ContentSyncService $syncService)

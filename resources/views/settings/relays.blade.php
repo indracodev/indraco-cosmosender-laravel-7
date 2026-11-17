@@ -9,7 +9,7 @@
    <section class="card shadow-sm" aria-label="Daftar Akun SMTP Relay">
       <div class="card-header bg-transparent py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
          <div>
-            <h2 class="h6 fw-bold mb-0">Manajemen Akun SMTP Relay ({{ $relays->count() }} Akun)</h2>
+            <h2 class="h6 fw-bold mb-0">Manajemen Akun SMTP Relay ({{ $relays->total() }} Akun)</h2>
             <p class="text-body-secondary small mb-0">Akun pengirim yang digunakan secara bergantian (Round-Robin) saat
                eksekusi email blast.</p>
          </div>
@@ -34,7 +34,7 @@
             <tbody>
                @foreach ($relays as $index => $r)
                   <tr>
-                     <td class="text-body-secondary">{{ $index + 1 }}</td>
+                     <td class="text-body-secondary">{{ $relays->firstItem() + $index }}</td>
                      <td class="fw-semibold">{{ $r->email }}</td>
                      <td>
                         <div><code>{{ $r->email_from ?: '-' }}</code></div>
@@ -77,6 +77,17 @@
             </tbody>
          </table>
       </div>
+
+      @if ($relays->hasPages())
+         <div class="card-footer bg-transparent py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="small text-body-secondary">
+               Menampilkan {{ $relays->firstItem() }}–{{ $relays->lastItem() }} dari {{ $relays->total() }} akun relay
+            </div>
+            <div class="m-0">
+               {{ $relays->links() }}
+            </div>
+         </div>
+      @endif
    </section>
 
    <!-- Modal Tambah Relay -->

@@ -30,8 +30,7 @@ class BlastController extends Controller
         $recentLogs = BlastLog::with('content')
             ->where('brand_id', $brand->id)
             ->orderBy('id', 'desc')
-            ->limit(10)
-            ->get();
+            ->paginate(50);
 
         return view('blast.index', compact('brand', 'contents', 'recentLogs'));
     }

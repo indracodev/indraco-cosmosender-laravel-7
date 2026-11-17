@@ -32,7 +32,7 @@
             <tbody>
                @foreach ($services as $index => $s)
                   <tr>
-                     <td class="text-body-secondary">{{ $index + 1 }}</td>
+                     <td class="text-body-secondary">{{ $services->firstItem() + $index }}</td>
                      <td><code>{{ $s->service }}</code></td>
                      <td>{{ optional($s->server)->name ?: '-' }} (<code>{{ optional($s->server)->domain }}</code>)</td>
                      <td>
@@ -55,6 +55,17 @@
             </tbody>
          </table>
       </div>
+
+      @if ($services->hasPages())
+         <div class="card-footer bg-transparent py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="small text-body-secondary">
+               Menampilkan {{ $services->firstItem() }}–{{ $services->lastItem() }} dari {{ $services->total() }} service
+            </div>
+            <div class="m-0">
+               {{ $services->links() }}
+            </div>
+         </div>
+      @endif
    </section>
 
    <!-- Modal Tambah Service -->

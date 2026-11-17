@@ -33,7 +33,7 @@
 
             <div class="p-3 flex-grow-1 overflow-x-hidden overflow-y-auto">
                <nav class="nav nav-pills flex-column gap-1 flex-nowrap" aria-label="Menu Utama">
-                  <div class="text-uppercase text-body-secondary fw-bold px-2 py-1"
+                  <div class="text-muted text-uppercase fw-bold px-2 py-1"
                      style="font-size: 0.7rem; letter-spacing: 0.05em;">
                      Operasional
                   </div>
@@ -48,7 +48,7 @@
                      <span>Customer Email Sync</span>
                   </a>
 
-                  <div class="text-uppercase text-body-secondary fw-bold px-2 pt-3 pb-1"
+                  <div class="text-muted text-uppercase fw-bold px-2 pt-3 pb-1"
                      style="font-size: 0.7rem; letter-spacing: 0.05em;">
                      Pengaturan Transaksi
                   </div>
@@ -63,7 +63,7 @@
                      <span>Blast Rules &amp; Test</span>
                   </a>
 
-                  <div class="text-uppercase text-body-secondary fw-bold px-2 pt-3 pb-1"
+                  <div class="text-muted text-uppercase fw-bold px-2 pt-3 pb-1"
                      style="font-size: 0.7rem; letter-spacing: 0.05em;">
                      Master Data
                   </div>

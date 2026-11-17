@@ -5,6 +5,12 @@
 
 :root {
     --app-header-height: 60px;
+    --bs-border-radius: 0;
+    --bs-border-radius-sm: 0;
+    --bs-border-radius-lg: 0;
+    --bs-border-radius-xl: 0;
+    --bs-border-radius-xxl: 0;
+    --bs-border-radius-2xl: 0;
 }
 
 /* Integrasi Tinggi Editor CodeMirror */
@@ -56,4 +62,12 @@ table {
 
 .svh-100 {
     height: 100svh !important;
+}
+
+.card-footer .pagination {
+    margin-bottom: 0;
+}
+
+.text-muted {
+    color: color-mix(in srgb, currentColor 50%, transparent) !important;
 }

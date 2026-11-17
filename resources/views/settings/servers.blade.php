@@ -31,7 +31,7 @@
             <tbody>
                @foreach ($servers as $index => $srv)
                   <tr>
-                     <td class="text-body-secondary">{{ $index + 1 }}</td>
+                     <td class="text-body-secondary">{{ $servers->firstItem() + $index }}</td>
                      <td class="fw-semibold">{{ $srv->name }}</td>
                      <td><code>{{ $srv->domain }}</code></td>
                      <td>
@@ -54,6 +54,17 @@
             </tbody>
          </table>
       </div>
+
+      @if ($servers->hasPages())
+         <div class="card-footer bg-transparent py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="small text-body-secondary">
+               Menampilkan {{ $servers->firstItem() }}–{{ $servers->lastItem() }} dari {{ $servers->total() }} server
+            </div>
+            <div class="m-0">
+               {{ $servers->links() }}
+            </div>
+         </div>
+      @endif
    </section>
 
    <!-- Modal Tambah Server -->

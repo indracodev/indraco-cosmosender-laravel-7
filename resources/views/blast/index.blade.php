@@ -87,7 +87,7 @@
                     </div>
                 </div>
 
-                <div class="p-2 rounded border bg-body-tertiary mb-3">
+                <div class="p-2 border bg-body-tertiary mb-3">
                     <div class="form-check form-switch">
                         <input
                             class="form-check-input"
@@ -169,6 +169,14 @@
                     </tbody>
                 </table>
             </div>
+
+            <div class="card-footer bg-transparent py-2 d-flex align-items-center justify-content-between flex-wrap gap-2 d-none" id="recipientPaginationFooter">
+                <span class="small text-body-secondary" id="recipientPageInfo"></span>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-secondary" id="btnRecipPrev">Sebelumnya</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnRecipNext">Berikutnya</button>
+                </div>
+            </div>
         </section>
     </div>
 </div>
@@ -216,14 +224,27 @@
             </tbody>
         </table>
     </div>
+
+    @if ($recentLogs->hasPages())
+        <div class="card-footer bg-transparent py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="small text-body-secondary">
+                Menampilkan {{ $recentLogs->firstItem() }}–{{ $recentLogs->lastItem() }} dari {{ $recentLogs->total() }} riwayat log
+            </div>
+            <div class="m-0">
+                {{ $recentLogs->links() }}
+            </div>
+        </div>
+    @endif
 </section>
 @endsection
 
 @push('scripts')
 <script>
     const isStagingAccount = @json(!empty($isStagingMode));
+    const RECIP_PAGE_SIZE = 50;
     let selectedRule = null;
     let recipientsList = [];
+    let currentRecipPage = 1;
     let isRunningBlast = false;
     let stopRequested = false;
 
@@ -237,9 +258,52 @@
     const progressPercentTextEl = document.getElementById('progressPercentText');
     const recipientTableBodyEl = document.getElementById('recipientTableBody');
     const recipientSubtitleEl = document.getElementById('recipientSubtitle');
+    const recipientPaginationFooterEl = document.getElementById('recipientPaginationFooter');
+    const recipientPageInfoEl = document.getElementById('recipientPageInfo');
+    const btnRecipPrevEl = document.getElementById('btnRecipPrev');
+    const btnRecipNextEl = document.getElementById('btnRecipNext');
     const countTotalEl = document.getElementById('countTotal');
     const countSuccessEl = document.getElementById('countSuccess');
     const countFailEl = document.getElementById('countFail');
+
+    function updateRecipientPagination() {
+        const total = recipientsList.length;
+        const totalPages = Math.max(1, Math.ceil(total / RECIP_PAGE_SIZE));
+        if (currentRecipPage > totalPages) currentRecipPage = totalPages;
+        if (currentRecipPage < 1) currentRecipPage = 1;
+
+        const startIdx = (currentRecipPage - 1) * RECIP_PAGE_SIZE;
+        const endIdx = Math.min(startIdx + RECIP_PAGE_SIZE, total);
+
+        recipientTableBodyEl.querySelectorAll('tr[data-row-index]').forEach((row) => {
+            const idx = Number(row.getAttribute('data-row-index'));
+            row.classList.toggle('d-none', idx < startIdx || idx >= endIdx);
+        });
+
+        if (total > RECIP_PAGE_SIZE) {
+            recipientPaginationFooterEl.classList.remove('d-none');
+            recipientPageInfoEl.textContent = `Menampilkan ${startIdx + 1}–${endIdx} dari ${total} penerima (Halaman ${currentRecipPage} / ${totalPages})`;
+            btnRecipPrevEl.disabled = currentRecipPage <= 1;
+            btnRecipNextEl.disabled = currentRecipPage >= totalPages;
+        } else {
+            recipientPaginationFooterEl.classList.add('d-none');
+        }
+    }
+
+    btnRecipPrevEl.addEventListener('click', () => {
+        if (currentRecipPage > 1) {
+            currentRecipPage--;
+            updateRecipientPagination();
+        }
+    });
+
+    btnRecipNextEl.addEventListener('click', () => {
+        const totalPages = Math.ceil(recipientsList.length / RECIP_PAGE_SIZE);
+        if (currentRecipPage < totalPages) {
+            currentRecipPage++;
+            updateRecipientPagination();
+        }
+    });
 
     function checkCanStart() {
         const hasContent = selectContentEl.value !== '';
@@ -283,7 +347,9 @@
     async function loadRecipientsForRule(ruleId) {
         const simulate = switchSimulateEl.checked ? 1 : 0;
         recipientTableBodyEl.innerHTML = '<tr><td colspan="5" class="text-center text-body-secondary py-4">Memuat daftar penerima...</td></tr>';
+        recipientPaginationFooterEl.classList.add('d-none');
         recipientsList = [];
+        currentRecipPage = 1;
         checkCanStart();
 
         try {
@@ -307,7 +373,7 @@
             let rows = '';
             recipientsList.forEach((r, idx) => {
                 rows += `
-                    <tr id="recip-row-${r.id}">
+                    <tr id="recip-row-${r.id}" data-row-index="${idx}">
                         <td class="text-body-secondary">${idx + 1}</td>
                         <td>
                             <div class="fw-medium">${r.email}</div>
@@ -322,6 +388,8 @@
                 `;
             });
             recipientTableBodyEl.innerHTML = rows;
+            currentRecipPage = 1;
+            updateRecipientPagination();
             checkCanStart();
         } catch (err) {
             recipientTableBodyEl.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">${err.message}</td></tr>`;
@@ -342,6 +410,7 @@
         }
 
         isRunningBlast = true;
+        window.isBlastActive = true;
         stopRequested = false;
         btnStartBlastEl.disabled = true;
         btnStopBlastEl.classList.remove('d-none');
@@ -362,11 +431,19 @@
     async function processNextRecipient(index, contentId, ruleId, simulate, okCount, failCount) {
         if (stopRequested || index >= recipientsList.length) {
             isRunningBlast = false;
+            window.isBlastActive = false;
             btnStopBlastEl.classList.add('d-none');
             blastProgressBarEl.classList.remove('progress-bar-animated');
             progressStatusTextEl.textContent = stopRequested ? 'Pengiriman dihentikan oleh pengguna.' : 'Seluruh antrean pengiriman telah selesai.';
             checkCanStart();
             return;
+        }
+
+        // Pindahkan halaman tabel otomatis mengikuti baris penerima yang sedang dikirim
+        const targetPage = Math.floor(index / RECIP_PAGE_SIZE) + 1;
+        if (currentRecipPage !== targetPage) {
+            currentRecipPage = targetPage;
+            updateRecipientPagination();
         }
 
         const item = recipientsList[index];
