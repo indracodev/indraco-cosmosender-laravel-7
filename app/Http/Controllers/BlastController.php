@@ -223,14 +223,18 @@ class BlastController extends Controller
                 'updated_who'  => session('cosmosender_user.user_name', 'Admin'),
             ]);
 
-            if ($request->boolean('is_last')) {
-                BlastLog::create([
-                    'brand_id'      => $brand->id,
-                    'content_id'    => $content->id,
-                    'last_email_id' => $validated['recipient_id'],
-                    'status'        => $result['success'] ? 'completed' : 'partial',
-                    'flag'          => 'Y',
-                ]);
+            if ($request->boolean('is_last') || (int) $validated['relay_index'] === 0) {
+                BlastLog::updateOrCreate(
+                    [
+                        'brand_id'   => $brand->id,
+                        'content_id' => $content->id,
+                        'status'     => $request->boolean('is_last') ? ($result['success'] ? 'completed' : 'partial') : 'partial',
+                    ],
+                    [
+                        'last_email_id' => $validated['recipient_id'],
+                        'flag'          => 'Y',
+                    ]
+                );
             }
         } elseif ($request->boolean('is_last')) {
             // Catat juga riwayat test / simulasi di t_blast_log agar mudah diaudit

@@ -10,7 +10,7 @@
 @endphp
 
 <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex flex-wrap align-items-center gap-2">
         <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Workspace
         </a>

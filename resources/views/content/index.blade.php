@@ -37,9 +37,21 @@
                </thead>
                <tbody>
                   @forelse ($contents as $index => $item)
+                     @php
+                        $itemBlasted = $item->isBlasted($brand);
+                     @endphp
                      <tr>
                         <td class="text-body-secondary">{{ $contents->firstItem() + $index }}</td>
-                        <td class="fw-medium">{{ $item->materi_name ?: '-' }}</td>
+                        <td class="fw-medium">
+                           <span>{{ $item->materi_name ?: '-' }}</span>
+                           @if ($itemBlasted)
+                              <span
+                                 class="badge text-bg-success-subtle text-success-emphasis border border-success-subtle ms-1"
+                                 title="Materi ini sudah pernah di-blasting ke pelanggan">
+                                 <i class="bi bi-lock-fill"></i> Terblasting
+                              </span>
+                           @endif
+                        </td>
                         <td>{{ $item->subject ?: '-' }}</td>
                         <td><code>{{ $item->formatted_date }}</code></td>
                         <td><code>{{ $item->formatted_time }}</code></td>
@@ -49,15 +61,20 @@
                         <td class="text-end">
                            <div class="btn-group btn-group-sm" role="group" aria-label="Aksi Materi">
                               <button type="button" class="btn btn-outline-secondary"
-                                 data-action="edit-meta"
-                                 data-id="{{ $item->id }}"
-                                 data-materi="{{ $item->materi_name }}"
-                                 data-subject="{{ $item->subject }}"
-                                 title="Ubah Nama Materi & Subject">
+                                 @if ($itemBlasted)
+                                    disabled
+                                    title="Materi sudah ter-blasting dan tidak dapat diubah"
+                                 @else
+                                    data-action="edit-meta"
+                                    data-id="{{ $item->id }}"
+                                    data-materi="{{ $item->materi_name }}"
+                                    data-subject="{{ $item->subject }}"
+                                    title="Ubah Nama Materi & Subject"
+                                 @endif>
                                  <i class="bi bi-pencil"></i> Edit Info
                               </button>
                               <a href="{{ route('contents.editor', $item->id) }}" class="btn btn-outline-primary"
-                                 title="Edit HTML & Live Preview">
+                                 title="{{ $itemBlasted ? 'Lihat Kode HTML (Read-Only)' : 'Edit HTML & Live Preview' }}">
                                  <i class="bi bi-code-slash me-1"></i> Editor HTML
                               </a>
                               <a href="{{ route('contents.preview', $item->id) }}" target="_blank" rel="noopener"
@@ -100,6 +117,19 @@
                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
             <div class="modal-body">
+               <div class="mb-3">
+                  <label for="addSourceContent" class="form-label small fw-semibold">
+                     Duplikat Kode HTML dari Materi Sebelumnya <span class="text-body-secondary fw-normal">(Opsional)</span>
+                  </label>
+                  <select id="addSourceContent" name="source_content_id" class="form-select">
+                     <option value="">-- Buat Materi Baru (Kosong) --</option>
+                     @foreach ($sourceContents as $src)
+                        <option value="{{ $src->id }}" data-subject="{{ $src->subject }}">
+                           [{{ $src->formatted_date }} {{ $src->formatted_time }}] {{ $src->materi_name }} — {{ $src->subject }}
+                        </option>
+                     @endforeach
+                  </select>
+               </div>
                <div class="mb-3">
                   <label for="addMateriName" class="form-label small fw-semibold">Nama Materi (Internal)</label>
                   <input type="text" id="addMateriName" name="materi_name" class="form-control"
@@ -168,6 +198,14 @@
 
 @push('scripts')
    <script>
+      document.getElementById('addSourceContent').addEventListener('change', (e) => {
+         const selectedOpt = e.currentTarget.options[e.currentTarget.selectedIndex];
+         const subjectInput = document.getElementById('addSubject');
+         if (selectedOpt && selectedOpt.value && subjectInput && !subjectInput.value.trim()) {
+            subjectInput.value = selectedOpt.getAttribute('data-subject') || '';
+         }
+      });
+
       document.getElementById('formAddContent').addEventListener('submit', async (e) => {
          e.preventDefault();
          const btnSubmit = document.getElementById('btnSubmitAdd');
@@ -207,7 +245,7 @@
 
       document.addEventListener('click', (e) => {
          const editMetaBtn = e.target.closest('[data-action="edit-meta"]');
-         if (editMetaBtn) {
+         if (editMetaBtn && !editMetaBtn.disabled) {
             openEditMeta(
                editMetaBtn.getAttribute('data-id'),
                editMetaBtn.getAttribute('data-materi') || '',

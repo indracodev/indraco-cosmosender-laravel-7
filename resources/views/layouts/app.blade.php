@@ -174,7 +174,7 @@
             </main>
 
             <footer>
-               <div class="container-fluid">
+               <div class="container-fluid px-xxl-5">
                   <hr>
                   <p class="small text-muted text-center text-lg-start">
                      Dikembangkan dengan ❤️ oleh INDRACODEV. &copy; {{ date('Y') }}

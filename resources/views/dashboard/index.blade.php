@@ -34,7 +34,7 @@
                   <div class="card-header bg-transparent p-3 d-sm-flex align-items-start justify-content-between gap-2">
                      <div>
                         <div class="d-flex align-items-center gap-2">
-                           <h2 class="h6 fw-bold mb-0">{{ $brand->name }}</h2>
+                           <h2 class="h5 fw-bold mb-0">{{ $brand->name }}</h2>
                            @if ($isReady)
                               <span
                                  class="badge text-bg-success-subtle text-success-emphasis border border-success-subtle">Siap

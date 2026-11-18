@@ -15,21 +15,30 @@ class ContentController extends Controller
 
         $contents = Content::where('brand_id', $brand->id)
             ->where('flag', 'Y')
-            ->withCount('assets')
+            ->withCount(['assets', 'completedBlastLogs'])
             ->orderBy('date_namespace', 'desc')
             ->orderBy('time_namespace', 'desc')
             ->paginate(50);
 
-        return view('content.index', compact('brand', 'contents'));
+        $sourceContents = Content::where('brand_id', $brand->id)
+            ->where('flag', 'Y')
+            ->select('id', 'materi_name', 'subject', 'date_namespace', 'time_namespace')
+            ->orderBy('date_namespace', 'desc')
+            ->orderBy('time_namespace', 'desc')
+            ->limit(100)
+            ->get();
+
+        return view('content.index', compact('brand', 'contents', 'sourceContents'));
     }
 
     public function store(Request $request, Brand $brand, ContentSyncService $syncService)
     {
         $validated = $request->validate([
-            'materi_name' => 'required|string|max:255',
-            'subject'     => 'required|string|max:255',
-            'blast_date'  => 'required|date',
-            'blast_time'  => 'required|string|max:10',
+            'materi_name'       => 'required|string|max:255',
+            'subject'           => 'required|string|max:255',
+            'blast_date'        => 'required|date',
+            'blast_time'        => 'required|string|max:10',
+            'source_content_id' => 'nullable|integer',
         ]);
 
         // Konversi YYYY-MM-DD menjadi YYMMDD dan HH:MM menjadi HHMM
@@ -49,13 +58,24 @@ class ContentController extends Controller
             ], 422);
         }
 
+        $initialBodyContent = '';
+        if (!empty($validated['source_content_id'])) {
+            $sourceContent = Content::where('brand_id', $brand->id)
+                ->where('flag', 'Y')
+                ->find($validated['source_content_id']);
+
+            if ($sourceContent) {
+                $initialBodyContent = (string) $sourceContent->body_content;
+            }
+        }
+
         $content = Content::create([
             'brand_id'       => $brand->id,
             'materi_name'    => $validated['materi_name'],
             'subject'        => $validated['subject'],
             'date_namespace' => $dateNamespace,
             'time_namespace' => $timeNamespace,
-            'body_content'   => '',
+            'body_content'   => $initialBodyContent,
             'flag'           => 'Y',
         ]);
 
@@ -72,6 +92,14 @@ class ContentController extends Controller
 
     public function updateMeta(Request $request, Content $content)
     {
+        $content->load('brand');
+        if ($content->isBlasted($content->brand)) {
+            return response()->json([
+                'code'    => 422,
+                'message' => 'Materi ini sudah pernah di-blasting ke pelanggan dan informasinya tidak dapat diubah.',
+            ], 422);
+        }
+
         $validated = $request->validate([
             'materi_name' => 'required|string|max:255',
             'subject'     => 'required|string|max:255',
@@ -92,15 +120,24 @@ class ContentController extends Controller
     {
         $content->load(['brand.service.server', 'assets']);
         $brand = $content->brand;
+        $isBlasted = $content->isBlasted($brand);
 
         $assets = $syncService->formatAssetUrls($brand, $content);
         $redirects = $this->buildRedirectList($brand, (string) $content->date_namespace);
 
-        return view('content.editor', compact('brand', 'content', 'assets', 'redirects'));
+        return view('content.editor', compact('brand', 'content', 'assets', 'redirects', 'isBlasted'));
     }
 
     public function saveBody(Request $request, Content $content, ContentSyncService $syncService)
     {
+        $content->load('brand.service.server');
+        if ($content->isBlasted($content->brand)) {
+            return response()->json([
+                'code'    => 422,
+                'message' => 'Materi ini sudah pernah di-blasting ke pelanggan dan kode HTML-nya telah dikunci.',
+            ], 422);
+        }
+
         $request->validate([
             'body_content' => 'nullable|string',
         ]);
@@ -109,7 +146,6 @@ class ContentController extends Controller
             'body_content' => (string) $request->input('body_content', ''),
         ]);
 
-        $content->load('brand.service.server');
         $isLiveAccount = session('cosmosender_user.mode') === 'live';
         $syncResult = $syncService->saveContentFiles($content->brand, $content, $isLiveAccount);
 
@@ -122,6 +158,14 @@ class ContentController extends Controller
 
     public function uploadAsset(Request $request, Content $content, ContentSyncService $syncService)
     {
+        $content->load('brand.service.server');
+        if ($content->isBlasted($content->brand)) {
+            return response()->json([
+                'code'    => 422,
+                'message' => 'Materi ini sudah pernah di-blasting ke pelanggan dan penambahan asset telah dikunci.',
+            ], 422);
+        }
+
         $request->validate([
             'files'   => 'required|array|min:1',
             'files.*' => 'required|file|mimes:jpg,jpeg,png,gif,webp|max:5120',
@@ -131,7 +175,6 @@ class ContentController extends Controller
             'files.*.max'    => 'Ukuran gambar maksimal 5MB per file.',
         ]);
 
-        $content->load('brand.service.server');
         $isLiveAccount = session('cosmosender_user.mode') === 'live';
 
         foreach ($request->file('files') as $file) {
@@ -151,6 +194,13 @@ class ContentController extends Controller
     public function pushToLive(Content $content, ContentSyncService $syncService)
     {
         $content->load(['brand.service.server', 'assets']);
+        if ($content->isBlasted($content->brand)) {
+            return response()->json([
+                'code'    => 422,
+                'message' => 'Materi ini sudah pernah di-blasting ke pelanggan dan telah dikunci.',
+            ], 422);
+        }
+
         $result = $syncService->pushAllToLive($content->brand, $content);
 
         return response()->json([
@@ -201,4 +251,3 @@ class ContentController extends Controller
         return $list;
     }
 }
-

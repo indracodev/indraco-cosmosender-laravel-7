@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+
 class Content extends BaseCosmosenderModel
 {
     protected $table = 't_content';
@@ -28,6 +30,42 @@ class Content extends BaseCosmosenderModel
         return $this->hasMany(Asset::class, 'content_id')->where('flag', 'Y')->orderBy('created_at', 'desc');
     }
 
+    public function completedBlastLogs()
+    {
+        return $this->hasMany(BlastLog::class, 'content_id')
+            ->where('flag', 'Y')
+            ->whereIn('status', ['completed', 'partial']);
+    }
+
+    /**
+     * Mengecek apakah materi konten ini sudah pernah di-blasting ke pelanggan.
+     */
+    public function isBlasted(?Brand $brand = null): bool
+    {
+        if (isset($this->attributes['completed_blast_logs_count'])) {
+            if ((int) $this->attributes['completed_blast_logs_count'] > 0) {
+                return true;
+            }
+        } elseif ($this->completedBlastLogs()->exists()) {
+            return true;
+        }
+
+        $targetBrand = $brand ?: ($this->relationLoaded('brand') ? $this->brand : null);
+        if ($targetBrand && !empty($targetBrand->last_blast_time) && $targetBrand->last_blast_time !== '0000-00-00 00:00:00') {
+            try {
+                $lastBlastDateNs = Carbon::parse($targetBrand->last_blast_time)->format('ymd');
+                $contentDateNs = (string) $this->date_namespace;
+                if (strlen($contentDateNs) === 6 && $contentDateNs <= $lastBlastDateNs) {
+                    return true;
+                }
+            } catch (\Throwable $e) {
+                // Abaikan jika format tanggal tidak valid
+            }
+        }
+
+        return false;
+    }
+
     public function getFormattedDateAttribute(): string
     {
         $str = (string) $this->date_namespace;
@@ -46,4 +84,3 @@ class Content extends BaseCosmosenderModel
         return $str ?: '-';
     }
 }
-

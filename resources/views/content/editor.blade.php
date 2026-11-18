@@ -11,7 +11,14 @@
 @section('content')
    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
       <div>
-         <h1 class="fs-4 mb-0 fw-semibold">{{ $content->materi_name }}</h1>
+         <div class="d-flex align-items-center gap-2">
+            <h1 class="fs-4 mb-0 fw-semibold">{{ $content->materi_name }}</h1>
+            @if (!empty($isBlasted))
+               <span class="badge text-bg-success-subtle text-success-emphasis border border-success-subtle">
+                  <i class="bi bi-lock-fill me-1"></i> Terblasting (Read-Only)
+               </span>
+            @endif
+         </div>
          <div class="text-body-secondary small">
             Brand: <strong class="text-body">{{ $brand->name }}</strong>
             &middot; Subject: <strong class="text-body">{{ $content->subject }}</strong>
@@ -32,14 +39,24 @@
             <i class="bi bi-box-arrow-up-right me-1"></i> Preview Tab Baru
          </a>
          <button type="button" class="btn btn-sm btn-outline-primary" id="btnPushLive"
-            title="Unggah HTML & Gambar lokal ke mbcontentservices Server Live">
+            {{ !empty($isBlasted) ? 'disabled' : '' }}
+            title="{{ !empty($isBlasted) ? 'Materi sudah ter-blasting dan terkunci' : 'Unggah HTML & Gambar lokal ke mbcontentservices Server Live' }}">
             <i class="bi bi-cloud-upload me-1"></i> Push Materi ke Server Live
          </button>
-         <button type="button" class="btn btn-sm btn-primary" id="btnSaveHtml">
+         <button type="button" class="btn btn-sm btn-primary" id="btnSaveHtml"
+            {{ !empty($isBlasted) ? 'disabled' : '' }}
+            title="{{ !empty($isBlasted) ? 'Materi sudah ter-blasting dan terkunci' : 'Simpan perubahan kode HTML' }}">
             <i class="bi bi-floppy me-1"></i> Simpan HTML
          </button>
       </div>
    </div>
+
+   @if (!empty($isBlasted))
+      <div class="alert alert-secondary py-2 px-3 small mb-3" role="alert">
+         <i class="bi bi-lock-fill me-1"></i>
+         <strong>Mode Read-Only:</strong> Materi ini sudah pernah di-blasting ke pelanggan sehingga fitur <strong>Upload Asset</strong>, <strong>Simpan HTML</strong>, dan <strong>Push Live</strong> dikunci demi menjaga histori pengiriman. Anda tetap dapat melihat dan menyalin kode HTML maupun URL gambar.
+      </div>
+   @endif
 
    <div id="editorAlertBox"></div>
 
@@ -56,8 +73,9 @@
             <form id="formUploadAsset" class="mb-3">
                <div class="input-group input-group-sm">
                   <input type="file" id="assetFileInput" name="files[]" class="form-control" accept="image/*" multiple
-                     required>
-                  <button type="submit" class="btn btn-primary" id="btnUploadAsset">
+                     required {{ !empty($isBlasted) ? 'disabled' : '' }}>
+                  <button type="submit" class="btn btn-primary" id="btnUploadAsset"
+                     {{ !empty($isBlasted) ? 'disabled' : '' }}>
                      <i class="bi bi-upload"></i> Upload
                   </button>
                </div>
@@ -155,6 +173,7 @@
    <script src="{{ asset('assets/vendor/codemirror/addon/edit/matchbrackets.js') }}"></script>
    <script>
       const contentId = {{ (int) $content->id }};
+      const isBlasted = @json(!empty($isBlasted));
       const initialAssets = @json($assets);
       let cmEditor = null;
       let previewTimer = null;
@@ -183,6 +202,7 @@
             matchBrackets: true,
             theme: 'dracula',
             lineWrapping: false,
+            readOnly: isBlasted,
             extraKeys: {
                'Alt-Z': () => toggleWordWrap()
             }
@@ -289,6 +309,7 @@
 
       document.getElementById('formUploadAsset').addEventListener('submit', async (e) => {
          e.preventDefault();
+         if (isBlasted) return;
          const fileInput = document.getElementById('assetFileInput');
          if (!fileInput.files.length) return;
 
@@ -316,6 +337,7 @@
       });
 
       document.getElementById('btnSaveHtml').addEventListener('click', async (e) => {
+         if (isBlasted) return;
          const bodyContent = cmEditor.getValue();
          const btn = e.currentTarget;
          btn.disabled = true;
@@ -336,6 +358,7 @@
       });
 
       document.getElementById('btnPushLive').addEventListener('click', async (e) => {
+         if (isBlasted) return;
          if (!confirm(
                'Sinkronkan kode HTML dan seluruh gambar lokal materi ini ke Server Live (mbcontentservices) sekarang?'
             )) {
@@ -363,4 +386,3 @@
       });
    </script>
 @endpush
-
