@@ -15,12 +15,12 @@ class ContentSyncService
      */
     public function getLocalRelativeDir(Brand $brand, Content $content): string
     {
-        $domain = trim((string) $brand->domain, '/');
-        $ns     = trim((string) $brand->aseet_namespace, '/');
-        $date   = trim((string) $content->date_namespace, '/');
-        $time   = trim((string) $content->time_namespace, '/');
+        $domainOrSlug = trim((string) ($brand->domain ?: $brand->slug ?: 'default'), '/');
+        $ns           = trim((string) $brand->aseet_namespace, '/');
+        $date         = trim((string) $content->date_namespace, '/');
+        $time         = trim((string) $content->time_namespace, '/');
 
-        return "uploads/{$domain}/{$ns}/{$date}/{$time}";
+        return "uploads/{$domainOrSlug}/{$ns}/{$date}/{$time}";
     }
 
     /**
@@ -181,20 +181,36 @@ class ContentSyncService
     {
         $protocol  = env('COSMOSENDER_REMOTE_PROTOCOL', 'https://');
         $relImgDir = $this->getLocalRelativeDir($brand, $content) . '/img';
+        $legacyDir = 'uploads/' . trim((string) $brand->aseet_namespace, '/') . '/' . trim((string) $content->date_namespace, '/') . '/' . trim((string) $content->time_namespace, '/') . '/img';
         $result    = [];
 
-        foreach ($content->assets as $asset) {
-            $remoteRelative = rtrim((string) $brand->content_domain, '/')
-                . trim((string) $brand->domain, '/') . '/'
-                . trim((string) $brand->aseet_namespace, '/') . '/'
-                . $content->date_namespace . '/'
-                . $content->time_namespace . '/img/'
-                . $asset->name;
+        $remoteParts = array_filter([
+            trim((string) $brand->content_domain, '/'),
+            trim((string) $brand->domain, '/'),
+            trim((string) $brand->aseet_namespace, '/'),
+            trim((string) $content->date_namespace, '/'),
+            trim((string) $content->time_namespace, '/'),
+            'img',
+        ], function ($part) {
+            return $part !== '';
+        });
+        $remoteBase = implode('/', $remoteParts) . '/';
 
-            $liveUrl  = $protocol . ltrim($remoteRelative, '/');
-            $localFile = public_path($relImgDir . '/' . $asset->name);
-            $hasLocal  = File::exists($localFile);
-            $localUrl  = $hasLocal ? url($relImgDir . '/' . $asset->name) : $liveUrl;
+        foreach ($content->assets as $asset) {
+            $liveUrl    = $protocol . $remoteBase . $asset->name;
+            $localFile  = public_path($relImgDir . '/' . $asset->name);
+            $legacyFile = public_path($legacyDir . '/' . $asset->name);
+
+            if (File::exists($localFile)) {
+                $hasLocal = true;
+                $localUrl = url($relImgDir . '/' . $asset->name);
+            } elseif (File::exists($legacyFile)) {
+                $hasLocal = true;
+                $localUrl = url($legacyDir . '/' . $asset->name);
+            } else {
+                $hasLocal = false;
+                $localUrl = $liveUrl;
+            }
 
             $result[] = [
                 'id'        => $asset->id,

@@ -103,6 +103,14 @@ class Brand extends BaseCosmosenderModel
 
     public function getUploadPathAttribute(): string
     {
-        return rtrim((string) $this->actual_path, '/') . '/' . trim((string) $this->domain, '/') . '/' . trim((string) $this->aseet_namespace, '/') . '/';
+        $parts = array_filter([
+            rtrim((string) $this->actual_path, '/'),
+            trim((string) $this->domain, '/'),
+            trim((string) $this->aseet_namespace, '/'),
+        ], function ($part) {
+            return $part !== '';
+        });
+
+        return implode('/', $parts) . '/';
     }
 }

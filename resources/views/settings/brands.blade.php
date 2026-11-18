@@ -41,7 +41,7 @@
                         <div class="text-body-secondary small">{{ $brand->email_alias ?: '-' }}</div>
                      </td>
                      <td class="small">
-                        <div>Domain: <code>{{ $brand->domain }}</code></div>
+                        <div>Domain: <code>{{ $brand->domain ?: $brand->content_domain ?: '-' }}</code></div>
                         <div class="text-body-secondary">Folder: <code>{{ $brand->aseet_namespace }}</code></div>
                      </td>
                      <td>
@@ -120,9 +120,9 @@
                         placeholder="Contoh: Supresso Coffee">
                   </div>
                   <div class="col-md-6">
-                     <label for="addDomain" class="form-label small fw-semibold">Domain Folder</label>
+                     <label for="addDomain" class="form-label small fw-semibold">Domain Folder <span class="text-body-secondary fw-normal">(Opsional)</span></label>
                      <input type="text" id="addDomain" name="domain" class="form-control"
-                        placeholder="Contoh: supresso.co.id" required>
+                        placeholder="Contoh: supresso.co.id">
                   </div>
                   <div class="col-md-6">
                      <label for="addNamespace" class="form-label small fw-semibold">Asset Namespace (Folder
@@ -193,8 +193,8 @@
                      <input type="text" id="editEmailAlias" name="email_alias" class="form-control">
                   </div>
                   <div class="col-md-6">
-                     <label for="editDomain" class="form-label small fw-semibold">Domain Folder</label>
-                     <input type="text" id="editDomain" name="domain" class="form-control" required>
+                     <label for="editDomain" class="form-label small fw-semibold">Domain Folder <span class="text-body-secondary fw-normal">(Opsional)</span></label>
+                     <input type="text" id="editDomain" name="domain" class="form-control">
                   </div>
                   <div class="col-md-6">
                      <label for="editNamespace" class="form-label small fw-semibold">Asset Namespace</label>

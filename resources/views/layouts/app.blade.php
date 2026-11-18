@@ -98,20 +98,11 @@
                </nav>
             </div>
 
-            <div class="py-2 px-3 d-none">
-               <form action="{{ route('logout') }}" method="POST" class="m-0">
-                  @csrf
-                  <button type="submit" class="btn w-100 btn-danger" title="Keluar Aplikasi">
-                     <i class="bi bi-box-arrow-right"></i> Keluar
-                  </button>
-               </form>
-            </div>
-
          </div>
       </aside>
 
       <!-- Main Content Area -->
-      <div class="svh-100 flex-grow-1 vstack bg-body-tertiary" style="min-width: 0;">
+      <div class="svh-100 flex-grow-1 vstack bg-body-secondary" style="min-width: 0;">
          <header class="navbar navbar-expand-lg bg-body border-bottom" style="min-height: var(--app-header-height);">
             <div class="container-fluid column-gap-3">
 

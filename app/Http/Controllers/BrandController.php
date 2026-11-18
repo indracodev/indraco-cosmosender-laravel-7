@@ -22,7 +22,7 @@ class BrandController extends Controller
         $validated = $request->validate([
             'name'                => 'required|string|max:100',
             'email_alias'         => 'nullable|string|max:255',
-            'domain'              => 'required|string|max:100',
+            'domain'              => 'nullable|string|max:100',
             'aseet_namespace'     => 'required|string|max:100',
             'service_id'          => 'required|integer',
             'actual_path'         => 'required|string|max:100',
@@ -35,7 +35,7 @@ class BrandController extends Controller
             'name'                => $validated['name'],
             'email_alias'         => $validated['email_alias'] ?? $validated['name'],
             'slug'                => Str::slug($validated['name']),
-            'domain'              => $validated['domain'],
+            'domain'              => (string) ($validated['domain'] ?? ''),
             'aseet_namespace'     => $validated['aseet_namespace'],
             'service_id'          => $validated['service_id'],
             'actual_path'         => $validated['actual_path'],
@@ -56,7 +56,7 @@ class BrandController extends Controller
         $validated = $request->validate([
             'name'                => 'required|string|max:100',
             'email_alias'         => 'nullable|string|max:255',
-            'domain'              => 'required|string|max:100',
+            'domain'              => 'nullable|string|max:100',
             'aseet_namespace'     => 'required|string|max:100',
             'service_id'          => 'required|integer',
             'actual_path'         => 'required|string|max:100',
@@ -69,7 +69,7 @@ class BrandController extends Controller
         $brand->update([
             'name'                => $validated['name'],
             'email_alias'         => $validated['email_alias'] ?? $brand->email_alias,
-            'domain'              => $validated['domain'],
+            'domain'              => (string) ($validated['domain'] ?? ''),
             'aseet_namespace'     => $validated['aseet_namespace'],
             'service_id'          => $validated['service_id'],
             'actual_path'         => $validated['actual_path'],

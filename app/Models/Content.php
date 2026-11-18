@@ -53,9 +53,10 @@ class Content extends BaseCosmosenderModel
         $targetBrand = $brand ?: ($this->relationLoaded('brand') ? $this->brand : null);
         if ($targetBrand && !empty($targetBrand->last_blast_time) && $targetBrand->last_blast_time !== '0000-00-00 00:00:00') {
             try {
-                $lastBlastDateNs = Carbon::parse($targetBrand->last_blast_time)->format('ymd');
+                $lastBlastDateTimeNs = Carbon::parse($targetBrand->last_blast_time)->format('ymdHi');
                 $contentDateNs = (string) $this->date_namespace;
-                if (strlen($contentDateNs) === 6 && $contentDateNs <= $lastBlastDateNs) {
+                $contentTimeNs = str_pad((string) $this->time_namespace, 4, '0', STR_PAD_LEFT);
+                if (strlen($contentDateNs) === 6 && ($contentDateNs . $contentTimeNs) <= $lastBlastDateTimeNs) {
                     return true;
                 }
             } catch (\Throwable $e) {

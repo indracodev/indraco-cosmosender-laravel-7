@@ -49,7 +49,7 @@
                         <div class="text-body-secondary small mt-1">
                            Pengirim: <span class="fw-medium text-body">{{ $brand->email_alias ?: '-' }}</span>
                            <br>
-                           Domain: <code>{{ $brand->domain }}</code>
+                           Domain: <code>{{ $brand->domain ?: $brand->content_domain ?: '-' }}</code>
                         </div>
                      </div>
 
